@@ -58,6 +58,29 @@ paths:
           description: Collection not found
         '500':
           description: Server error
+  /api/v2/offers/collection/{collection_slug}:
+    get:
+      summary: Get collection offers
+      description: Get the active, valid collection offers for the specified collection.
+      operationId: getCollectionOffers
+      parameters:
+        - name: collection_slug
+          in: path
+          required: true
+          description: collection to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffersResponse'
+        '400':
+          description: Collection not found
+        '500':
+          description: Server error
 components:
   securitySchemes:
     apiKeyAuth:
@@ -109,6 +132,148 @@ components:
         joined_date:
           type: string
           description: The date when the account was created
+    Offer:
+      type: object
+      properties:
+        order_hash:
+          type: string
+          description: The hash of the order.
+        chain:
+          type: string
+          description: The blockchain on which the offer exists (e.g., "ethereum").
+        price:
+          type: object
+          description: The price details of the offer.
+          properties:
+            currency:
+              type: string
+              description: The currency used for the offer (e.g., "WETH").
+            decimals:
+              type: integer
+              description: Number of decimals for the currency.
+            value:
+              type: string
+              description: The value of the offer in currency units.
+        criteria:
+          type: object
+          description: The offer criteria.
+          properties:
+            collection:
+              type: object
+              description: The collection criteria.
+              properties:
+                slug:
+                  type: string
+                  description: The slug identifier of the collection.
+            contract:
+              type: object
+              description: The contract criteria.
+              properties:
+                address:
+                  type: string
+                  description: The contract address.
+            trait:
+              type: object
+              description: The trait criteria.
+              properties:
+                type:
+                  type: string
+                  description: The type of the trait (e.g., "Background").
+                value:
+                  type: string
+                  description: The value of the trait (e.g., "Yellow").
+            encoded_token_ids:
+              type: string
+              description: Encoded token IDs. Use "*" for all tokens.
+        protocol_data:
+          type: object
+          description: Data related to the protocol of the offer.
+          properties:
+            parameters:
+              type: object
+              description: The offer parameters.
+              properties:
+                offerer:
+                  type: string
+                  description: Address of the offerer.
+                offer:
+                  type: array
+                  description: The list of items included in the offer.
+                  items:
+                    type: object
+                    properties:
+                      itemType:
+                        type: integer
+                        description: The type of item (e.g., 1 for ERC20).
+                      token:
+                        type: string
+                        description: Token address.
+                      identifierOrCriteria:
+                        type: string
+                        description: Identifier or criteria for the token.
+                      startAmount:
+                        type: string
+                        description: The starting amount for the offer.
+                      endAmount:
+                        type: string
+                        description: The ending amount for the offer.
+                consideration:
+                  type: array
+                  description: The list of considerations for the offer.
+                  items:
+                    type: object
+                    properties:
+                      itemType:
+                        type: integer
+                        description: The type of item (e.g., 1 for ERC721).
+                      token:
+                        type: string
+                        description: Token address.
+                      identifierOrCriteria:
+                        type: string
+                        description: Identifier or criteria for the token.
+                      startAmount:
+                        type: string
+                        description: The starting amount for the consideration.
+                      endAmount:
+                        type: string
+                        description: The ending amount for the consideration.
+                      recipient:
+                        type: string
+                        description: Address of the recipient.
+                startTime:
+                  type: string
+                  description: The start time of the offer (as a string timestamp).
+                endTime:
+                  type: string
+                  description: The end time of the offer (as a string timestamp).
+                orderType:
+                  type: integer
+                  description: The type of order.
+                zone:
+                  type: string
+                  description: Address of the zone.
+                zoneHash:
+                  type: string
+                  description: The hash of the zone.
+                salt:
+                  type: string
+                  description: A unique value to prevent duplicate orders.
+                conduitKey:
+                  type: string
+                  description: The conduit key for the order.
+                totalOriginalConsiderationItems:
+                  type: integer
+                  description: Total number of original consideration items.
+                counter:
+                  type: integer
+                  description: Counter value of the order.
+            signature:
+              type: string
+              description: The signature of the protocol data. May be null.
+        protocol_address:
+          type: string
+          description: The protocol address.
     Collection:
       type: object
       required:
@@ -264,3 +429,12 @@ components:
         created_date:
           type: string
           description: Creation date of the collection
+    OffersResponse:
+      type: object
+      description: Response object wrapping the offers array.
+      properties:
+        offers:
+          type: array
+          description: A list of offers in the response.
+          items:
+            $ref: '#/components/schemas/Offer'

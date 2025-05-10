@@ -187,6 +187,141 @@ type Collection struct {
 	WikiUrl *string `json:"wiki_url,omitempty"`
 }
 
+// Offer defines model for Offer.
+type Offer struct {
+	// Chain The blockchain on which the offer exists (e.g., "ethereum").
+	Chain *string `json:"chain,omitempty"`
+
+	// Criteria The offer criteria.
+	Criteria *struct {
+		// Collection The collection criteria.
+		Collection *struct {
+			// Slug The slug identifier of the collection.
+			Slug *string `json:"slug,omitempty"`
+		} `json:"collection,omitempty"`
+
+		// Contract The contract criteria.
+		Contract *struct {
+			// Address The contract address.
+			Address *string `json:"address,omitempty"`
+		} `json:"contract,omitempty"`
+
+		// EncodedTokenIds Encoded token IDs. Use "*" for all tokens.
+		EncodedTokenIds *string `json:"encoded_token_ids,omitempty"`
+
+		// Trait The trait criteria.
+		Trait *struct {
+			// Type The type of the trait (e.g., "Background").
+			Type *string `json:"type,omitempty"`
+
+			// Value The value of the trait (e.g., "Yellow").
+			Value *string `json:"value,omitempty"`
+		} `json:"trait,omitempty"`
+	} `json:"criteria,omitempty"`
+
+	// OrderHash The hash of the order.
+	OrderHash *string `json:"order_hash,omitempty"`
+
+	// Price The price details of the offer.
+	Price *struct {
+		// Currency The currency used for the offer (e.g., "WETH").
+		Currency *string `json:"currency,omitempty"`
+
+		// Decimals Number of decimals for the currency.
+		Decimals *int `json:"decimals,omitempty"`
+
+		// Value The value of the offer in currency units.
+		Value *string `json:"value,omitempty"`
+	} `json:"price,omitempty"`
+
+	// ProtocolAddress The protocol address.
+	ProtocolAddress *string `json:"protocol_address,omitempty"`
+
+	// ProtocolData Data related to the protocol of the offer.
+	ProtocolData *struct {
+		// Parameters The offer parameters.
+		Parameters *struct {
+			// ConduitKey The conduit key for the order.
+			ConduitKey *string `json:"conduitKey,omitempty"`
+
+			// Consideration The list of considerations for the offer.
+			Consideration *[]struct {
+				// EndAmount The ending amount for the consideration.
+				EndAmount *string `json:"endAmount,omitempty"`
+
+				// IdentifierOrCriteria Identifier or criteria for the token.
+				IdentifierOrCriteria *string `json:"identifierOrCriteria,omitempty"`
+
+				// ItemType The type of item (e.g., 1 for ERC721).
+				ItemType *int `json:"itemType,omitempty"`
+
+				// Recipient Address of the recipient.
+				Recipient *string `json:"recipient,omitempty"`
+
+				// StartAmount The starting amount for the consideration.
+				StartAmount *string `json:"startAmount,omitempty"`
+
+				// Token Token address.
+				Token *string `json:"token,omitempty"`
+			} `json:"consideration,omitempty"`
+
+			// Counter Counter value of the order.
+			Counter *int `json:"counter,omitempty"`
+
+			// EndTime The end time of the offer (as a string timestamp).
+			EndTime *string `json:"endTime,omitempty"`
+
+			// Offer The list of items included in the offer.
+			Offer *[]struct {
+				// EndAmount The ending amount for the offer.
+				EndAmount *string `json:"endAmount,omitempty"`
+
+				// IdentifierOrCriteria Identifier or criteria for the token.
+				IdentifierOrCriteria *string `json:"identifierOrCriteria,omitempty"`
+
+				// ItemType The type of item (e.g., 1 for ERC20).
+				ItemType *int `json:"itemType,omitempty"`
+
+				// StartAmount The starting amount for the offer.
+				StartAmount *string `json:"startAmount,omitempty"`
+
+				// Token Token address.
+				Token *string `json:"token,omitempty"`
+			} `json:"offer,omitempty"`
+
+			// Offerer Address of the offerer.
+			Offerer *string `json:"offerer,omitempty"`
+
+			// OrderType The type of order.
+			OrderType *int `json:"orderType,omitempty"`
+
+			// Salt A unique value to prevent duplicate orders.
+			Salt *string `json:"salt,omitempty"`
+
+			// StartTime The start time of the offer (as a string timestamp).
+			StartTime *string `json:"startTime,omitempty"`
+
+			// TotalOriginalConsiderationItems Total number of original consideration items.
+			TotalOriginalConsiderationItems *int `json:"totalOriginalConsiderationItems,omitempty"`
+
+			// Zone Address of the zone.
+			Zone *string `json:"zone,omitempty"`
+
+			// ZoneHash The hash of the zone.
+			ZoneHash *string `json:"zoneHash,omitempty"`
+		} `json:"parameters,omitempty"`
+
+		// Signature The signature of the protocol data. May be null.
+		Signature *string `json:"signature,omitempty"`
+	} `json:"protocol_data,omitempty"`
+}
+
+// OffersResponse Response object wrapping the offers array.
+type OffersResponse struct {
+	// Offers A list of offers in the response.
+	Offers *[]Offer `json:"offers,omitempty"`
+}
+
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -265,6 +400,9 @@ type ClientInterface interface {
 
 	// GetCollection request
 	GetCollection(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCollectionOffers request
+	GetCollectionOffers(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetAccount(ctx context.Context, username string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -281,6 +419,18 @@ func (c *Client) GetAccount(ctx context.Context, username string, reqEditors ...
 
 func (c *Client) GetCollection(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetCollectionRequest(c.Server, collectionSlug)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetCollectionOffers(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCollectionOffersRequest(c.Server, collectionSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -359,6 +509,40 @@ func NewGetCollectionRequest(server string, collectionSlug string) (*http.Reques
 	return req, nil
 }
 
+// NewGetCollectionOffersRequest generates requests for GetCollectionOffers
+func NewGetCollectionOffersRequest(server string, collectionSlug string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "collection_slug", runtime.ParamLocationPath, collectionSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v2/offers/collection/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -407,6 +591,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetCollectionWithResponse request
 	GetCollectionWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionResponse, error)
+
+	// GetCollectionOffersWithResponse request
+	GetCollectionOffersWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionOffersResponse, error)
 }
 
 type GetAccountResponse struct {
@@ -453,6 +640,28 @@ func (r GetCollectionResponse) StatusCode() int {
 	return 0
 }
 
+type GetCollectionOffersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OffersResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCollectionOffersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCollectionOffersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetAccountWithResponse request returning *GetAccountResponse
 func (c *ClientWithResponses) GetAccountWithResponse(ctx context.Context, username string, reqEditors ...RequestEditorFn) (*GetAccountResponse, error) {
 	rsp, err := c.GetAccount(ctx, username, reqEditors...)
@@ -469,6 +678,15 @@ func (c *ClientWithResponses) GetCollectionWithResponse(ctx context.Context, col
 		return nil, err
 	}
 	return ParseGetCollectionResponse(rsp)
+}
+
+// GetCollectionOffersWithResponse request returning *GetCollectionOffersResponse
+func (c *ClientWithResponses) GetCollectionOffersWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionOffersResponse, error) {
+	rsp, err := c.GetCollectionOffers(ctx, collectionSlug, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCollectionOffersResponse(rsp)
 }
 
 // ParseGetAccountResponse parses an HTTP response from a GetAccountWithResponse call
@@ -513,6 +731,32 @@ func ParseGetCollectionResponse(rsp *http.Response) (*GetCollectionResponse, err
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Collection
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCollectionOffersResponse parses an HTTP response from a GetCollectionOffersWithResponse call
+func ParseGetCollectionOffersResponse(rsp *http.Response) (*GetCollectionOffersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCollectionOffersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OffersResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
