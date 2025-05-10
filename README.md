@@ -1,6 +1,6 @@
 # go-opensea
 
-<img src="logo.png" alt="OpenSea Go SDK Logo" width="200"/>
+<img src="logo.jpg" alt="OpenSea Go SDK Logo" width="200"/>
 
 I started this Go opensea SDK because the official openapi spec on the Opensea website is incorrect.
 
