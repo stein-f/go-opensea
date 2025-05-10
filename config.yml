@@ -1,0 +1,5 @@
+package: opensea
+output: opensea.go
+generate:
+  models: true
+  client: true

@@ -1,0 +1,266 @@
+openapi: 3.0.3
+info:
+  title: Opensea API
+  description: Opensea NFT marketplace REST api spec
+  version: 1.0.0
+
+servers:
+  - url: https://api.opensea.io
+    description: Production API
+
+security:
+  - apiKeyAuth: []
+
+paths:
+  /api/v2/accounts/{username}:
+    get:
+      summary: Get account
+      description: Get an OpenSea Account Profile including details such as bio, social media usernames, and profile image.
+      operationId: getAccount
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: The account to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Account not found
+        '500':
+          description: Server error
+  /api/v2/collections/{collection_slug}:
+    get:
+      summary: Get collection
+      description: Get a single collection including details such as fees, traits, and links.
+      operationId: getCollection
+      parameters:
+        - name: collection_slug
+          in: path
+          required: true
+          description: collection to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: Collection not found
+        '500':
+          description: Server error
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    Account:
+      type: object
+      required:
+        - address
+        - username
+        - profile_image_url
+        - banner_image_url
+        - website
+        - bio
+        - joined_date
+      properties:
+        address:
+          type: string
+          description: The account address
+        username:
+          type: string
+          description: The username associated with the account
+        profile_image_url:
+          type: string
+          description: URL of the profile image
+        banner_image_url:
+          type: string
+          description: URL of the banner image
+        website:
+          type: string
+          description: The website URL of the user
+        social_media_accounts:
+          type: array
+          description: List of associated social media accounts
+          items:
+            type: object
+            properties:
+              platform:
+                type: string
+                description: Social media platform name
+              username:
+                type: string
+                description: Social media username
+        bio:
+          type: string
+          description: A short biography of the account holder
+        joined_date:
+          type: string
+          description: The date when the account was created
+    Collection:
+      type: object
+      required:
+        - collection
+        - name
+        - description
+        - image_url
+        - owner
+        - total_supply
+        - created_date
+      properties:
+        collection:
+          type: string
+          description: The slug identifier of the collection
+        name:
+          type: string
+          description: The name of the collection
+        description:
+          type: string
+          description: A detailed description of the collection
+        image_url:
+          type: string
+          description: URL of the collection's image
+        banner_image_url:
+          type: string
+          description: URL of the collection's banner image
+        owner:
+          type: string
+          description: The Ethereum address of the collection owner
+        safelist_status:
+          type: string
+          description: The safelist status of the collection
+        category:
+          type: string
+          description: The category of the collection
+        is_disabled:
+          type: boolean
+          description: Whether the collection is disabled
+        is_nsfw:
+          type: boolean
+          description: Indicates if the collection contains NSFW content
+        trait_offers_enabled:
+          type: boolean
+          description: Flags if trait offers are enabled
+        collection_offers_enabled:
+          type: boolean
+          description: Flags if collection offers are enabled
+        opensea_url:
+          type: string
+          description: URL to view the collection on OpenSea
+        project_url:
+          type: string
+          description: Official project URL
+        wiki_url:
+          type: string
+          description: URL to the wiki page (if available)
+        discord_url:
+          type: string
+          description: Collection's Discord URL
+        telegram_url:
+          type: string
+          description: Collection's Telegram URL
+        twitter_username:
+          type: string
+          description: Twitter username associated with the collection
+        instagram_username:
+          type: string
+          description: Instagram username associated with the collection
+        contracts:
+          type: array
+          description: List of contract details for the collection
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+                description: Contract address
+              chain:
+                type: string
+                description: Blockchain of the contract
+        editors:
+          type: array
+          description: List of editor addresses
+          items:
+            type: string
+        fees:
+          type: array
+          description: List of fees associated with the collection
+          items:
+            type: object
+            properties:
+              fee:
+                type: number
+                description: Fee percentage
+              recipient:
+                type: string
+                description: Address of the fee recipient
+              required:
+                type: boolean
+                description: Whether the fee is required
+        rarity:
+          type: object
+          description: Rarity-related metadata
+          properties:
+            strategy_id:
+              type: string
+              description: Rarity calculation strategy identifier
+            strategy_version:
+              type: string
+              description: Version of the rarity calculation strategy
+            calculated_at:
+              type: string
+              description: Timestamp when the rarity was calculated
+            max_rank:
+              type: integer
+              description: Maximum rank of tokens
+            tokens_scored:
+              type: integer
+              description: Number of tokens scored
+        payment_tokens:
+          type: array
+          description: List of payment tokens supported by the collection
+          items:
+            type: object
+            properties:
+              symbol:
+                type: string
+                description: Payment token symbol
+              address:
+                type: string
+                description: Address of the payment token
+              chain:
+                type: string
+                description: Blockchain of the payment token
+              image:
+                type: string
+                description: URL of the payment token's image
+              name:
+                type: string
+                description: Name of the token
+              decimals:
+                type: integer
+                description: Number of decimals of the token
+              eth_price:
+                type: string
+                description: Price of the token in ETH
+              usd_price:
+                type: string
+                description: Price of the token in USD
+        total_supply:
+          type: integer
+          description: Total number of items in the collection
+        created_date:
+          type: string
+          description: Creation date of the collection
