@@ -632,7 +632,7 @@ func NewGetCollectionOffersRequest(server string, collectionSlug string) (*http.
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/v2/offers/collection/%s", pathParam0)
+	operationPath := fmt.Sprintf("/api/v2/offers/collection/%s/all", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
