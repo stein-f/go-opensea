@@ -19,6 +19,13 @@ const (
 	ApiKeyAuthScopes = "apiKeyAuth.Scopes"
 )
 
+// Defines values for CollectionStatsResponseIntervalsInterval.
+const (
+	OneDay    CollectionStatsResponseIntervalsInterval = "one_day"
+	SevenDay  CollectionStatsResponseIntervalsInterval = "seven_day"
+	ThirtyDay CollectionStatsResponseIntervalsInterval = "thirty_day"
+)
+
 // Account defines model for Account.
 type Account struct {
 	// Address The account address
@@ -186,6 +193,60 @@ type Collection struct {
 	// WikiUrl URL to the wiki page (if available)
 	WikiUrl *string `json:"wiki_url,omitempty"`
 }
+
+// CollectionStatsResponse A response containing statistics for a specific collection.
+type CollectionStatsResponse struct {
+	// Intervals Time interval statistics for the collection.
+	Intervals []struct {
+		// AveragePrice The average price during the interval.
+		AveragePrice float32 `json:"average_price"`
+
+		// Interval The interval data is associated with (e.g., "one_day").
+		Interval CollectionStatsResponseIntervalsInterval `json:"interval"`
+
+		// Sales Number of sales during the interval.
+		Sales float32 `json:"sales"`
+
+		// SalesDiff Difference in sales compared to the previous interval.
+		SalesDiff float32 `json:"sales_diff"`
+
+		// Volume Trading volume during the interval.
+		Volume float32 `json:"volume"`
+
+		// VolumeChange Percentage change in volume compared to the previous interval.
+		VolumeChange float32 `json:"volume_change"`
+
+		// VolumeDiff Difference in trading volume compared to the previous interval.
+		VolumeDiff float32 `json:"volume_diff"`
+	} `json:"intervals"`
+
+	// Total Aggregated statistics for the collection.
+	Total struct {
+		// AveragePrice Average price of items in the collection.
+		AveragePrice float32 `json:"average_price"`
+
+		// FloorPrice The lowest price of items in the collection.
+		FloorPrice float32 `json:"floor_price"`
+
+		// FloorPriceSymbol The currency or token symbol for the floor price.
+		FloorPriceSymbol string `json:"floor_price_symbol"`
+
+		// MarketCap The market cap of the collection.
+		MarketCap float32 `json:"market_cap"`
+
+		// NumOwners Number of unique owners of the collection.
+		NumOwners int `json:"num_owners"`
+
+		// Sales Total sales transactions for the collection.
+		Sales float32 `json:"sales"`
+
+		// Volume Total trading volume of the collection.
+		Volume float32 `json:"volume"`
+	} `json:"total"`
+}
+
+// CollectionStatsResponseIntervalsInterval The interval data is associated with (e.g., "one_day").
+type CollectionStatsResponseIntervalsInterval string
 
 // Offer defines model for Offer.
 type Offer struct {
@@ -401,6 +462,9 @@ type ClientInterface interface {
 	// GetCollection request
 	GetCollection(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetCollectionStats request
+	GetCollectionStats(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetCollectionOffers request
 	GetCollectionOffers(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
@@ -419,6 +483,18 @@ func (c *Client) GetAccount(ctx context.Context, username string, reqEditors ...
 
 func (c *Client) GetCollection(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetCollectionRequest(c.Server, collectionSlug)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetCollectionStats(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCollectionStatsRequest(c.Server, collectionSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -492,6 +568,40 @@ func NewGetCollectionRequest(server string, collectionSlug string) (*http.Reques
 	}
 
 	operationPath := fmt.Sprintf("/api/v2/collections/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetCollectionStatsRequest generates requests for GetCollectionStats
+func NewGetCollectionStatsRequest(server string, collectionSlug string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "collection_slug", runtime.ParamLocationPath, collectionSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v2/collections/%s/stats", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -592,6 +702,9 @@ type ClientWithResponsesInterface interface {
 	// GetCollectionWithResponse request
 	GetCollectionWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionResponse, error)
 
+	// GetCollectionStatsWithResponse request
+	GetCollectionStatsWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionStatsResponse, error)
+
 	// GetCollectionOffersWithResponse request
 	GetCollectionOffersWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionOffersResponse, error)
 }
@@ -640,6 +753,28 @@ func (r GetCollectionResponse) StatusCode() int {
 	return 0
 }
 
+type GetCollectionStatsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CollectionStatsResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCollectionStatsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCollectionStatsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetCollectionOffersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -678,6 +813,15 @@ func (c *ClientWithResponses) GetCollectionWithResponse(ctx context.Context, col
 		return nil, err
 	}
 	return ParseGetCollectionResponse(rsp)
+}
+
+// GetCollectionStatsWithResponse request returning *GetCollectionStatsResponse
+func (c *ClientWithResponses) GetCollectionStatsWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionStatsResponse, error) {
+	rsp, err := c.GetCollectionStats(ctx, collectionSlug, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCollectionStatsResponse(rsp)
 }
 
 // GetCollectionOffersWithResponse request returning *GetCollectionOffersResponse
@@ -731,6 +875,32 @@ func ParseGetCollectionResponse(rsp *http.Response) (*GetCollectionResponse, err
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Collection
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCollectionStatsResponse parses an HTTP response from a GetCollectionStatsWithResponse call
+func ParseGetCollectionStatsResponse(rsp *http.Response) (*GetCollectionStatsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCollectionStatsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CollectionStatsResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

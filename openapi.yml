@@ -81,6 +81,29 @@ paths:
           description: Collection not found
         '500':
           description: Server error
+  /api/v2/collections/{collection_slug}/stats:
+    get:
+      summary: Get collection stats
+      description: Retrieve statistical data for a specific collection, including volume, sales, and other metrics.
+      operationId: getCollectionStats
+      parameters:
+        - name: collection_slug
+          in: path
+          required: true
+          description: The slug identifier for the collection to retrieve stats for.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A successful response containing the collection's statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionStatsResponse'
+        '400':
+          description: Collection not found
+        '500':
+          description: Server error
 components:
   securitySchemes:
     apiKeyAuth:
@@ -438,3 +461,79 @@ components:
           description: A list of offers in the response.
           items:
             $ref: '#/components/schemas/Offer'
+    CollectionStatsResponse:
+      type: object
+      description: A response containing statistics for a specific collection.
+      required:
+        - total
+        - intervals
+      properties:
+        total:
+          type: object
+          description: Aggregated statistics for the collection.
+          required:
+            - volume
+            - sales
+            - average_price
+            - num_owners
+            - market_cap
+            - floor_price
+            - floor_price_symbol
+          properties:
+            volume:
+              type: number
+              description: Total trading volume of the collection.
+            sales:
+              type: number
+              description: Total sales transactions for the collection.
+            average_price:
+              type: number
+              description: Average price of items in the collection.
+            num_owners:
+              type: integer
+              description: Number of unique owners of the collection.
+            market_cap:
+              type: number
+              description: The market cap of the collection.
+            floor_price:
+              type: number
+              description: The lowest price of items in the collection.
+            floor_price_symbol:
+              type: string
+              description: The currency or token symbol for the floor price.
+        intervals:
+          type: array
+          description: Time interval statistics for the collection.
+          items:
+            type: object
+            required:
+              - interval
+              - volume
+              - volume_diff
+              - volume_change
+              - sales
+              - sales_diff
+              - average_price
+            properties:
+              interval:
+                type: string
+                description: The interval data is associated with (e.g., "one_day").
+                enum: ["one_day", "seven_day", "thirty_day"]
+              volume:
+                type: number
+                description: Trading volume during the interval.
+              volume_diff:
+                type: number
+                description: Difference in trading volume compared to the previous interval.
+              volume_change:
+                type: number
+                description: Percentage change in volume compared to the previous interval.
+              sales:
+                type: number
+                description: Number of sales during the interval.
+              sales_diff:
+                type: number
+                description: Difference in sales compared to the previous interval.
+              average_price:
+                type: number
+                description: The average price during the interval.
