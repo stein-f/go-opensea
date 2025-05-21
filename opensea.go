@@ -326,9 +326,6 @@ type Offer struct {
 				Token *string `json:"token,omitempty"`
 			} `json:"consideration,omitempty"`
 
-			// Counter Counter value of the order.
-			Counter *int `json:"counter,omitempty"`
-
 			// EndTime The end time of the offer (as a string timestamp).
 			EndTime *string `json:"endTime,omitempty"`
 

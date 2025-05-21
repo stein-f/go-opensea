@@ -316,9 +316,6 @@ components:
                 totalOriginalConsiderationItems:
                   type: integer
                   description: Total number of original consideration items.
-                counter:
-                  type: integer
-                  description: Counter value of the order.
             signature:
               type: string
               description: The signature of the protocol data. May be null.
