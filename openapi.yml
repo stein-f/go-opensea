@@ -157,6 +157,10 @@ components:
           description: The date when the account was created
     Offer:
       type: object
+      required:
+        - order_hash
+        - chain
+        - price
       properties:
         order_hash:
           type: string
@@ -166,6 +170,10 @@ components:
           description: The blockchain on which the offer exists (e.g., "ethereum").
         price:
           type: object
+          required:
+            - currency
+            - decimals
+            - value
           description: The price details of the offer.
           properties:
             currency:
@@ -179,6 +187,9 @@ components:
               description: The value of the offer in currency units.
         criteria:
           type: object
+          required:
+            - collection
+            - contract
           description: The offer criteria.
           properties:
             collection:
@@ -190,6 +201,8 @@ components:
                   description: The slug identifier of the collection.
             contract:
               type: object
+              required:
+                - address
               description: The contract criteria.
               properties:
                 address:
@@ -197,6 +210,9 @@ components:
                   description: The contract address.
             trait:
               type: object
+              required:
+                - type
+                - value
               description: The trait criteria.
               properties:
                 type:
@@ -210,10 +226,15 @@ components:
               description: Encoded token IDs. Use "*" for all tokens.
         protocol_data:
           type: object
+          required:
+            - parameters
           description: Data related to the protocol of the offer.
           properties:
             parameters:
               type: object
+              required:
+                - offerer
+                - offer
               description: The offer parameters.
               properties:
                 offerer:
@@ -224,6 +245,13 @@ components:
                   description: The list of items included in the offer.
                   items:
                     type: object
+                    required:
+                      - itemType
+                      - token
+                      - startAmount
+                      - endAmount
+                      - recipient
+                      - identifierOrCriteria
                     properties:
                       itemType:
                         type: integer

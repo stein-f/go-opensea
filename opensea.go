@@ -251,21 +251,21 @@ type CollectionStatsResponseIntervalsInterval string
 // Offer defines model for Offer.
 type Offer struct {
 	// Chain The blockchain on which the offer exists (e.g., "ethereum").
-	Chain *string `json:"chain,omitempty"`
+	Chain string `json:"chain"`
 
 	// Criteria The offer criteria.
 	Criteria *struct {
 		// Collection The collection criteria.
-		Collection *struct {
+		Collection struct {
 			// Slug The slug identifier of the collection.
 			Slug *string `json:"slug,omitempty"`
-		} `json:"collection,omitempty"`
+		} `json:"collection"`
 
 		// Contract The contract criteria.
-		Contract *struct {
+		Contract struct {
 			// Address The contract address.
-			Address *string `json:"address,omitempty"`
-		} `json:"contract,omitempty"`
+			Address string `json:"address"`
+		} `json:"contract"`
 
 		// EncodedTokenIds Encoded token IDs. Use "*" for all tokens.
 		EncodedTokenIds *string `json:"encoded_token_ids,omitempty"`
@@ -273,27 +273,27 @@ type Offer struct {
 		// Trait The trait criteria.
 		Trait *struct {
 			// Type The type of the trait (e.g., "Background").
-			Type *string `json:"type,omitempty"`
+			Type string `json:"type"`
 
 			// Value The value of the trait (e.g., "Yellow").
-			Value *string `json:"value,omitempty"`
+			Value string `json:"value"`
 		} `json:"trait,omitempty"`
 	} `json:"criteria,omitempty"`
 
 	// OrderHash The hash of the order.
-	OrderHash *string `json:"order_hash,omitempty"`
+	OrderHash string `json:"order_hash"`
 
 	// Price The price details of the offer.
-	Price *struct {
+	Price struct {
 		// Currency The currency used for the offer (e.g., "WETH").
-		Currency *string `json:"currency,omitempty"`
+		Currency string `json:"currency"`
 
 		// Decimals Number of decimals for the currency.
-		Decimals *int `json:"decimals,omitempty"`
+		Decimals int `json:"decimals"`
 
 		// Value The value of the offer in currency units.
-		Value *string `json:"value,omitempty"`
-	} `json:"price,omitempty"`
+		Value string `json:"value"`
+	} `json:"price"`
 
 	// ProtocolAddress The protocol address.
 	ProtocolAddress *string `json:"protocol_address,omitempty"`
@@ -301,7 +301,7 @@ type Offer struct {
 	// ProtocolData Data related to the protocol of the offer.
 	ProtocolData *struct {
 		// Parameters The offer parameters.
-		Parameters *struct {
+		Parameters struct {
 			// ConduitKey The conduit key for the order.
 			ConduitKey *string `json:"conduitKey,omitempty"`
 
@@ -333,25 +333,25 @@ type Offer struct {
 			EndTime *string `json:"endTime,omitempty"`
 
 			// Offer The list of items included in the offer.
-			Offer *[]struct {
+			Offer []struct {
 				// EndAmount The ending amount for the offer.
-				EndAmount *string `json:"endAmount,omitempty"`
+				EndAmount string `json:"endAmount"`
 
 				// IdentifierOrCriteria Identifier or criteria for the token.
-				IdentifierOrCriteria *string `json:"identifierOrCriteria,omitempty"`
+				IdentifierOrCriteria string `json:"identifierOrCriteria"`
 
 				// ItemType The type of item (e.g., 1 for ERC20).
-				ItemType *int `json:"itemType,omitempty"`
+				ItemType int `json:"itemType"`
 
 				// StartAmount The starting amount for the offer.
-				StartAmount *string `json:"startAmount,omitempty"`
+				StartAmount string `json:"startAmount"`
 
 				// Token Token address.
-				Token *string `json:"token,omitempty"`
-			} `json:"offer,omitempty"`
+				Token string `json:"token"`
+			} `json:"offer"`
 
 			// Offerer Address of the offerer.
-			Offerer *string `json:"offerer,omitempty"`
+			Offerer string `json:"offerer"`
 
 			// OrderType The type of order.
 			OrderType *int `json:"orderType,omitempty"`
@@ -370,7 +370,7 @@ type Offer struct {
 
 			// ZoneHash The hash of the zone.
 			ZoneHash *string `json:"zoneHash,omitempty"`
-		} `json:"parameters,omitempty"`
+		} `json:"parameters"`
 
 		// Signature The signature of the protocol data. May be null.
 		Signature *string `json:"signature,omitempty"`
