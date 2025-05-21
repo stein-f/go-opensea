@@ -390,6 +390,7 @@ components:
             properties:
               fee:
                 type: number
+                format: double
                 description: Fee percentage
               recipient:
                 type: string
@@ -482,21 +483,26 @@ components:
           properties:
             volume:
               type: number
+              format: double
               description: Total trading volume of the collection.
             sales:
               type: number
+              format: double
               description: Total sales transactions for the collection.
             average_price:
               type: number
+              format: double
               description: Average price of items in the collection.
             num_owners:
               type: integer
               description: Number of unique owners of the collection.
             market_cap:
               type: number
+              format: double
               description: The market cap of the collection.
             floor_price:
               type: number
+              format: double
               description: The lowest price of items in the collection.
             floor_price_symbol:
               type: string
@@ -521,19 +527,25 @@ components:
                 enum: ["one_day", "seven_day", "thirty_day"]
               volume:
                 type: number
+                format: double
                 description: Trading volume during the interval.
               volume_diff:
                 type: number
+                format: double
                 description: Difference in trading volume compared to the previous interval.
               volume_change:
                 type: number
+                format: double
                 description: Percentage change in volume compared to the previous interval.
               sales:
                 type: number
+                format: double
                 description: Number of sales during the interval.
               sales_diff:
                 type: number
+                format: double
                 description: Difference in sales compared to the previous interval.
               average_price:
                 type: number
+                format: double
                 description: The average price during the interval.

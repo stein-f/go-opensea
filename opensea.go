@@ -97,7 +97,7 @@ type Collection struct {
 	// Fees List of fees associated with the collection
 	Fees *[]struct {
 		// Fee Fee percentage
-		Fee *float32 `json:"fee,omitempty"`
+		Fee *float64 `json:"fee,omitempty"`
 
 		// Recipient Address of the fee recipient
 		Recipient *string `json:"recipient,omitempty"`
@@ -199,49 +199,49 @@ type CollectionStatsResponse struct {
 	// Intervals Time interval statistics for the collection.
 	Intervals []struct {
 		// AveragePrice The average price during the interval.
-		AveragePrice float32 `json:"average_price"`
+		AveragePrice float64 `json:"average_price"`
 
 		// Interval The interval data is associated with (e.g., "one_day").
 		Interval CollectionStatsResponseIntervalsInterval `json:"interval"`
 
 		// Sales Number of sales during the interval.
-		Sales float32 `json:"sales"`
+		Sales float64 `json:"sales"`
 
 		// SalesDiff Difference in sales compared to the previous interval.
-		SalesDiff float32 `json:"sales_diff"`
+		SalesDiff float64 `json:"sales_diff"`
 
 		// Volume Trading volume during the interval.
-		Volume float32 `json:"volume"`
+		Volume float64 `json:"volume"`
 
 		// VolumeChange Percentage change in volume compared to the previous interval.
-		VolumeChange float32 `json:"volume_change"`
+		VolumeChange float64 `json:"volume_change"`
 
 		// VolumeDiff Difference in trading volume compared to the previous interval.
-		VolumeDiff float32 `json:"volume_diff"`
+		VolumeDiff float64 `json:"volume_diff"`
 	} `json:"intervals"`
 
 	// Total Aggregated statistics for the collection.
 	Total struct {
 		// AveragePrice Average price of items in the collection.
-		AveragePrice float32 `json:"average_price"`
+		AveragePrice float64 `json:"average_price"`
 
 		// FloorPrice The lowest price of items in the collection.
-		FloorPrice float32 `json:"floor_price"`
+		FloorPrice float64 `json:"floor_price"`
 
 		// FloorPriceSymbol The currency or token symbol for the floor price.
 		FloorPriceSymbol string `json:"floor_price_symbol"`
 
 		// MarketCap The market cap of the collection.
-		MarketCap float32 `json:"market_cap"`
+		MarketCap float64 `json:"market_cap"`
 
 		// NumOwners Number of unique owners of the collection.
 		NumOwners int `json:"num_owners"`
 
 		// Sales Total sales transactions for the collection.
-		Sales float32 `json:"sales"`
+		Sales float64 `json:"sales"`
 
 		// Volume Total trading volume of the collection.
-		Volume float32 `json:"volume"`
+		Volume float64 `json:"volume"`
 	} `json:"total"`
 }
 
