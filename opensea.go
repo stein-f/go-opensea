@@ -380,7 +380,7 @@ type Offer struct {
 // OffersResponse Response object wrapping the offers array.
 type OffersResponse struct {
 	// Offers A list of offers in the response.
-	Offers *[]Offer `json:"offers,omitempty"`
+	Offers []Offer `json:"offers"`
 }
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function

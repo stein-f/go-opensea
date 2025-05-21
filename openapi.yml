@@ -455,6 +455,8 @@ components:
           description: Creation date of the collection
     OffersResponse:
       type: object
+      required:
+        - offers
       description: Response object wrapping the offers array.
       properties:
         offers:
