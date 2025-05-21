@@ -58,7 +58,7 @@ paths:
           description: Collection not found
         '500':
           description: Server error
-  /api/v2/offers/collection/{collection_slug}/all:
+  /api/v2/offers/collection/{collection_slug}:
     get:
       summary: Get collection offers
       description: Get the active, valid collection offers for the specified collection.
