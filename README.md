@@ -4,7 +4,11 @@
 
 I started this Go opensea SDK because the official openapi spec on the Opensea website is incorrect.
 
-This is not exhaustive—I'll be adding methods as I need them.
+This is not exhaustive—I'll be adding methods as I need them
+
+## Generating the SDK
+
+The project uses `oapi-codegen` to generate the SDK from the open api spec.
 
 To generate the client run
 
