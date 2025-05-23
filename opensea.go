@@ -4,6 +4,7 @@
 package opensea
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -380,6 +381,15 @@ type OffersResponse struct {
 	Offers []Offer `json:"offers"`
 }
 
+// CancelOrderJSONBody defines parameters for CancelOrder.
+type CancelOrderJSONBody struct {
+	// OffererSignature An EIP-712 signature from the offerer of the order. If this is not provided, the user associated with the API Key will be checked instead. The signature must be a EIP-712 signature consisting of the order's Seaport contract's name, version, address, and chain. The struct to sign is OrderHash containing a single bytes32 field.
+	OffererSignature *string `json:"offererSignature,omitempty"`
+}
+
+// CancelOrderJSONRequestBody defines body for CancelOrder for application/json ContentType.
+type CancelOrderJSONRequestBody CancelOrderJSONBody
+
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -464,6 +474,11 @@ type ClientInterface interface {
 
 	// GetCollectionOffers request
 	GetCollectionOffers(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CancelOrderWithBody request with any body
+	CancelOrderWithBody(ctx context.Context, chain string, protocolAddress string, orderHash string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CancelOrder(ctx context.Context, chain string, protocolAddress string, orderHash string, body CancelOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetAccount(ctx context.Context, username string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -504,6 +519,30 @@ func (c *Client) GetCollectionStats(ctx context.Context, collectionSlug string, 
 
 func (c *Client) GetCollectionOffers(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetCollectionOffersRequest(c.Server, collectionSlug)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CancelOrderWithBody(ctx context.Context, chain string, protocolAddress string, orderHash string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelOrderRequestWithBody(c.Server, chain, protocolAddress, orderHash, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CancelOrder(ctx context.Context, chain string, protocolAddress string, orderHash string, body CancelOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelOrderRequest(c.Server, chain, protocolAddress, orderHash, body)
 	if err != nil {
 		return nil, err
 	}
@@ -650,6 +689,67 @@ func NewGetCollectionOffersRequest(server string, collectionSlug string) (*http.
 	return req, nil
 }
 
+// NewCancelOrderRequest calls the generic CancelOrder builder with application/json body
+func NewCancelOrderRequest(server string, chain string, protocolAddress string, orderHash string, body CancelOrderJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCancelOrderRequestWithBody(server, chain, protocolAddress, orderHash, "application/json", bodyReader)
+}
+
+// NewCancelOrderRequestWithBody generates requests for CancelOrder with any type of body
+func NewCancelOrderRequestWithBody(server string, chain string, protocolAddress string, orderHash string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "chain", runtime.ParamLocationPath, chain)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "protocol_address", runtime.ParamLocationPath, protocolAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "order_hash", runtime.ParamLocationPath, orderHash)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v2/orders/chain/%s/protocol/%s/%s/cancel", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -704,6 +804,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetCollectionOffersWithResponse request
 	GetCollectionOffersWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionOffersResponse, error)
+
+	// CancelOrderWithBodyWithResponse request with any body
+	CancelOrderWithBodyWithResponse(ctx context.Context, chain string, protocolAddress string, orderHash string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CancelOrderResponse, error)
+
+	CancelOrderWithResponse(ctx context.Context, chain string, protocolAddress string, orderHash string, body CancelOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CancelOrderResponse, error)
 }
 
 type GetAccountResponse struct {
@@ -794,6 +899,30 @@ func (r GetCollectionOffersResponse) StatusCode() int {
 	return 0
 }
 
+type CancelOrderResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		LastSignatureIssuedValidUntil *string `json:"last_signature_issued_valid_until,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r CancelOrderResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CancelOrderResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetAccountWithResponse request returning *GetAccountResponse
 func (c *ClientWithResponses) GetAccountWithResponse(ctx context.Context, username string, reqEditors ...RequestEditorFn) (*GetAccountResponse, error) {
 	rsp, err := c.GetAccount(ctx, username, reqEditors...)
@@ -828,6 +957,23 @@ func (c *ClientWithResponses) GetCollectionOffersWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseGetCollectionOffersResponse(rsp)
+}
+
+// CancelOrderWithBodyWithResponse request with arbitrary body returning *CancelOrderResponse
+func (c *ClientWithResponses) CancelOrderWithBodyWithResponse(ctx context.Context, chain string, protocolAddress string, orderHash string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CancelOrderResponse, error) {
+	rsp, err := c.CancelOrderWithBody(ctx, chain, protocolAddress, orderHash, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelOrderResponse(rsp)
+}
+
+func (c *ClientWithResponses) CancelOrderWithResponse(ctx context.Context, chain string, protocolAddress string, orderHash string, body CancelOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CancelOrderResponse, error) {
+	rsp, err := c.CancelOrder(ctx, chain, protocolAddress, orderHash, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelOrderResponse(rsp)
 }
 
 // ParseGetAccountResponse parses an HTTP response from a GetAccountWithResponse call
@@ -924,6 +1070,34 @@ func ParseGetCollectionOffersResponse(rsp *http.Response) (*GetCollectionOffersR
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest OffersResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCancelOrderResponse parses an HTTP response from a CancelOrderWithResponse call
+func ParseCancelOrderResponse(rsp *http.Response) (*CancelOrderResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CancelOrderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			LastSignatureIssuedValidUntil *string `json:"last_signature_issued_valid_until,omitempty"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

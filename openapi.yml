@@ -35,6 +35,54 @@ paths:
           description: Account not found
         '500':
           description: Server error
+  /api/v2/orders/chain/{chain}/protocol/{protocol_address}/{order_hash}/cancel:
+    post:
+      summary: Cancel Order
+      description: Offchain cancel a single order, offer or listing, by its order hash when protected by the SignedZone. Protocol and Chain are required to prevent hash collisions. Please note cancellation is only assured if a fulfillment signature was not vended prior to cancellation.
+      operationId: cancelOrder
+      parameters:
+        - name: chain
+          in: path
+          required: true
+          description: The blockchain on which to filter the results, e.g. "ethereum", "abstract"
+          schema:
+            type: string
+        - name: protocol_address
+          in: path
+          required: true
+          description: The contract address of the protocol to use in the request.
+          schema:
+            type: string
+        - name: order_hash
+          in: path
+          required: true
+          description: The hash of the order to retrieve.
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                offererSignature:
+                  type: string
+                  description: An EIP-712 signature from the offerer of the order. If this is not provided, the user associated with the API Key will be checked instead. The signature must be a EIP-712 signature consisting of the order's Seaport contract's name, version, address, and chain. The struct to sign is OrderHash containing a single bytes32 field.
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_signature_issued_valid_until:
+                    type: string
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
   /api/v2/collections/{collection_slug}:
     get:
       summary: Get collection
