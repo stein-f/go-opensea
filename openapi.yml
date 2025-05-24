@@ -181,6 +181,16 @@ components:
       in: header
       name: x-api-key
   schemas:
+    SocialMediaAccount:
+      type: object
+      properties:
+        platform:
+          type: string
+          description: Social media platform name
+        username:
+          type: string
+          description: Social media username
+
     Account:
       type: object
       required:
@@ -211,187 +221,213 @@ components:
           type: array
           description: List of associated social media accounts
           items:
-            type: object
-            properties:
-              platform:
-                type: string
-                description: Social media platform name
-              username:
-                type: string
-                description: Social media username
+            $ref: '#/components/schemas/SocialMediaAccount'
         bio:
           type: string
           description: A short biography of the account holder
         joined_date:
           type: string
           description: The date when the account was created
-    Offer:
+
+    Price:
       type: object
       required:
-        - order_hash
-        - chain
-        - price
+        - currency
+        - decimals
+        - value
       properties:
-        order_hash:
+        currency:
           type: string
-          description: The hash of the order.
+          description: The currency used (e.g., "WETH")
+        decimals:
+          type: integer
+          description: Number of decimals for the currency
+        value:
+          type: string
+          description: The value in currency units
+
+    CollectionCriteria:
+      type: object
+      properties:
+        slug:
+          type: string
+          description: The slug identifier of the collection
+
+    ContractCriteria:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: string
+          description: The contract address
+
+    TraitCriteria:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          description: The type of the trait (e.g., "Background")
+        value:
+          type: string
+          description: The value of the trait (e.g., "Yellow")
+
+    OfferItem:
+      type: object
+      required:
+        - itemType
+        - token
+        - startAmount
+        - endAmount
+        - recipient
+        - identifierOrCriteria
+      properties:
+        itemType:
+          type: integer
+          description: The type of item (e.g., 1 for ERC20)
+        token:
+          type: string
+          description: Token address
+        identifierOrCriteria:
+          type: string
+          description: Identifier or criteria for the token
+        startAmount:
+          type: string
+          description: The starting amount
+        endAmount:
+          type: string
+          description: The ending amount
+        recipient:
+          type: string
+          description: Address of the recipient
+
+    ProtocolParameters:
+      type: object
+      required:
+        - offerer
+        - offer
+      properties:
+        offerer:
+          type: string
+          description: Address of the offerer
+        offer:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfferItem'
+        consideration:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfferItem'
+        startTime:
+          type: string
+          description: The start time (as string timestamp)
+        endTime:
+          type: string
+          description: The end time (as string timestamp)
+        orderType:
+          type: integer
+          description: The type of order
+        zone:
+          type: string
+          description: Address of the zone
+        zoneHash:
+          type: string
+          description: The hash of the zone
+        salt:
+          type: string
+          description: A unique value to prevent duplicate orders
+        conduitKey:
+          type: string
+          description: The conduit key for the order
+        totalOriginalConsiderationItems:
+          type: integer
+          description: Total number of original consideration items
+
+    ProtocolData:
+      type: object
+      required:
+        - parameters
+      properties:
+        parameters:
+          $ref: '#/components/schemas/ProtocolParameters'
+        signature:
+          type: string
+          description: The signature of the protocol data
+
+    ContractInfo:
+      type: object
+      properties:
+        address:
+          type: string
+          description: Contract address
         chain:
           type: string
-          description: The blockchain on which the offer exists (e.g., "ethereum").
-        price:
-          type: object
-          required:
-            - currency
-            - decimals
-            - value
-          description: The price details of the offer.
-          properties:
-            currency:
-              type: string
-              description: The currency used for the offer (e.g., "WETH").
-            decimals:
-              type: integer
-              description: Number of decimals for the currency.
-            value:
-              type: string
-              description: The value of the offer in currency units.
-        criteria:
-          type: object
-          required:
-            - collection
-            - contract
-          description: The offer criteria.
-          properties:
-            collection:
-              type: object
-              description: The collection criteria.
-              properties:
-                slug:
-                  type: string
-                  description: The slug identifier of the collection.
-            contract:
-              type: object
-              required:
-                - address
-              description: The contract criteria.
-              properties:
-                address:
-                  type: string
-                  description: The contract address.
-            trait:
-              type: object
-              required:
-                - type
-                - value
-              description: The trait criteria.
-              properties:
-                type:
-                  type: string
-                  description: The type of the trait (e.g., "Background").
-                value:
-                  type: string
-                  description: The value of the trait (e.g., "Yellow").
-            encoded_token_ids:
-              type: string
-              description: Encoded token IDs. Use "*" for all tokens.
-        protocol_data:
-          type: object
-          required:
-            - parameters
-          description: Data related to the protocol of the offer.
-          properties:
-            parameters:
-              type: object
-              required:
-                - offerer
-                - offer
-              description: The offer parameters.
-              properties:
-                offerer:
-                  type: string
-                  description: Address of the offerer.
-                offer:
-                  type: array
-                  description: The list of items included in the offer.
-                  items:
-                    type: object
-                    required:
-                      - itemType
-                      - token
-                      - startAmount
-                      - endAmount
-                      - recipient
-                      - identifierOrCriteria
-                    properties:
-                      itemType:
-                        type: integer
-                        description: The type of item (e.g., 1 for ERC20).
-                      token:
-                        type: string
-                        description: Token address.
-                      identifierOrCriteria:
-                        type: string
-                        description: Identifier or criteria for the token.
-                      startAmount:
-                        type: string
-                        description: The starting amount for the offer.
-                      endAmount:
-                        type: string
-                        description: The ending amount for the offer.
-                consideration:
-                  type: array
-                  description: The list of considerations for the offer.
-                  items:
-                    type: object
-                    properties:
-                      itemType:
-                        type: integer
-                        description: The type of item (e.g., 1 for ERC721).
-                      token:
-                        type: string
-                        description: Token address.
-                      identifierOrCriteria:
-                        type: string
-                        description: Identifier or criteria for the token.
-                      startAmount:
-                        type: string
-                        description: The starting amount for the consideration.
-                      endAmount:
-                        type: string
-                        description: The ending amount for the consideration.
-                      recipient:
-                        type: string
-                        description: Address of the recipient.
-                startTime:
-                  type: string
-                  description: The start time of the offer (as a string timestamp).
-                endTime:
-                  type: string
-                  description: The end time of the offer (as a string timestamp).
-                orderType:
-                  type: integer
-                  description: The type of order.
-                zone:
-                  type: string
-                  description: Address of the zone.
-                zoneHash:
-                  type: string
-                  description: The hash of the zone.
-                salt:
-                  type: string
-                  description: A unique value to prevent duplicate orders.
-                conduitKey:
-                  type: string
-                  description: The conduit key for the order.
-                totalOriginalConsiderationItems:
-                  type: integer
-                  description: Total number of original consideration items.
-            signature:
-              type: string
-              description: The signature of the protocol data. May be null.
-        protocol_address:
+          description: Blockchain of the contract
+
+    CollectionFee:
+      type: object
+      properties:
+        fee:
+          type: number
+          format: double
+          description: Fee percentage
+        recipient:
           type: string
-          description: The protocol address.
+          description: Address of the fee recipient
+        required:
+          type: boolean
+          description: Whether the fee is required
+
+    RarityInfo:
+      type: object
+      properties:
+        strategy_id:
+          type: string
+          description: Rarity calculation strategy identifier
+        strategy_version:
+          type: string
+          description: Version of the rarity calculation strategy
+        calculated_at:
+          type: string
+          description: Timestamp when the rarity was calculated
+        max_rank:
+          type: integer
+          description: Maximum rank of tokens
+        tokens_scored:
+          type: integer
+          description: Number of tokens scored
+
+    PaymentToken:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Payment token symbol
+        address:
+          type: string
+          description: Address of the payment token
+        chain:
+          type: string
+          description: Blockchain of the payment token
+        image:
+          type: string
+          description: URL of the payment token's image
+        name:
+          type: string
+          description: Name of the token
+        decimals:
+          type: integer
+          description: Number of decimals of the token
+        eth_price:
+          type: string
+          description: Price of the token in ETH
+        usd_price:
+          type: string
+          description: Price of the token in USD
+
     Collection:
       type: object
       required:
@@ -462,190 +498,167 @@ components:
           description: Instagram username associated with the collection
         contracts:
           type: array
-          description: List of contract details for the collection
           items:
-            type: object
-            properties:
-              address:
-                type: string
-                description: Contract address
-              chain:
-                type: string
-                description: Blockchain of the contract
+            $ref: '#/components/schemas/ContractInfo'
         editors:
           type: array
-          description: List of editor addresses
           items:
             type: string
+          description: List of editor addresses
         fees:
           type: array
-          description: List of fees associated with the collection
           items:
-            type: object
-            properties:
-              fee:
-                type: number
-                format: double
-                description: Fee percentage
-              recipient:
-                type: string
-                description: Address of the fee recipient
-              required:
-                type: boolean
-                description: Whether the fee is required
+            $ref: '#/components/schemas/CollectionFee'
         rarity:
-          type: object
-          description: Rarity-related metadata
-          properties:
-            strategy_id:
-              type: string
-              description: Rarity calculation strategy identifier
-            strategy_version:
-              type: string
-              description: Version of the rarity calculation strategy
-            calculated_at:
-              type: string
-              description: Timestamp when the rarity was calculated
-            max_rank:
-              type: integer
-              description: Maximum rank of tokens
-            tokens_scored:
-              type: integer
-              description: Number of tokens scored
+          $ref: '#/components/schemas/RarityInfo'
         payment_tokens:
           type: array
-          description: List of payment tokens supported by the collection
           items:
-            type: object
-            properties:
-              symbol:
-                type: string
-                description: Payment token symbol
-              address:
-                type: string
-                description: Address of the payment token
-              chain:
-                type: string
-                description: Blockchain of the payment token
-              image:
-                type: string
-                description: URL of the payment token's image
-              name:
-                type: string
-                description: Name of the token
-              decimals:
-                type: integer
-                description: Number of decimals of the token
-              eth_price:
-                type: string
-                description: Price of the token in ETH
-              usd_price:
-                type: string
-                description: Price of the token in USD
+            $ref: '#/components/schemas/PaymentToken'
         total_supply:
           type: integer
           description: Total number of items in the collection
         created_date:
           type: string
           description: Creation date of the collection
-    OffersResponse:
+
+    CollectionStats:
       type: object
       required:
-        - offers
-      description: Response object wrapping the offers array.
+        - volume
+        - sales
+        - average_price
+        - num_owners
+        - market_cap
+        - floor_price
+        - floor_price_symbol
       properties:
-        offers:
-          type: array
-          description: A list of offers in the response.
-          items:
-            $ref: '#/components/schemas/Offer'
+        volume:
+          type: number
+          format: double
+          description: Total trading volume
+        sales:
+          type: number
+          format: double
+          description: Total sales transactions
+        average_price:
+          type: number
+          format: double
+          description: Average price of items
+        num_owners:
+          type: integer
+          description: Number of unique owners
+        market_cap:
+          type: number
+          format: double
+          description: The market cap
+        floor_price:
+          type: number
+          format: double
+          description: The lowest price of items
+        floor_price_symbol:
+          type: string
+          description: The currency symbol for floor price
+
+    StatsInterval:
+      type: object
+      required:
+        - interval
+        - volume
+        - volume_diff
+        - volume_change
+        - sales
+        - sales_diff
+        - average_price
+      properties:
+        interval:
+          type: string
+          enum: ["one_day", "seven_day", "thirty_day"]
+          description: The interval period
+        volume:
+          type: number
+          format: double
+          description: Trading volume during interval
+        volume_diff:
+          type: number
+          format: double
+          description: Volume difference vs previous interval
+        volume_change:
+          type: number
+          format: double
+          description: Percentage volume change
+        sales:
+          type: number
+          format: double
+          description: Number of sales
+        sales_diff:
+          type: number
+          format: double
+          description: Sales difference vs previous interval
+        average_price:
+          type: number
+          format: double
+          description: Average price during interval
+
     CollectionStatsResponse:
       type: object
-      description: A response containing statistics for a specific collection.
       required:
         - total
         - intervals
       properties:
         total:
-          type: object
-          description: Aggregated statistics for the collection.
-          required:
-            - volume
-            - sales
-            - average_price
-            - num_owners
-            - market_cap
-            - floor_price
-            - floor_price_symbol
-          properties:
-            volume:
-              type: number
-              format: double
-              description: Total trading volume of the collection.
-            sales:
-              type: number
-              format: double
-              description: Total sales transactions for the collection.
-            average_price:
-              type: number
-              format: double
-              description: Average price of items in the collection.
-            num_owners:
-              type: integer
-              description: Number of unique owners of the collection.
-            market_cap:
-              type: number
-              format: double
-              description: The market cap of the collection.
-            floor_price:
-              type: number
-              format: double
-              description: The lowest price of items in the collection.
-            floor_price_symbol:
-              type: string
-              description: The currency or token symbol for the floor price.
+          $ref: '#/components/schemas/CollectionStats'
         intervals:
           type: array
-          description: Time interval statistics for the collection.
           items:
-            type: object
-            required:
-              - interval
-              - volume
-              - volume_diff
-              - volume_change
-              - sales
-              - sales_diff
-              - average_price
-            properties:
-              interval:
-                type: string
-                description: The interval data is associated with (e.g., "one_day").
-                enum: ["one_day", "seven_day", "thirty_day"]
-              volume:
-                type: number
-                format: double
-                description: Trading volume during the interval.
-              volume_diff:
-                type: number
-                format: double
-                description: Difference in trading volume compared to the previous interval.
-              volume_change:
-                type: number
-                format: double
-                description: Percentage change in volume compared to the previous interval.
-              sales:
-                type: number
-                format: double
-                description: Number of sales during the interval.
-              sales_diff:
-                type: number
-                format: double
-                description: Difference in sales compared to the previous interval.
-              average_price:
-                type: number
-                format: double
-                description: The average price during the interval.
+            $ref: '#/components/schemas/StatsInterval'
+
+    Offer:
+      type: object
+      required:
+        - order_hash
+        - chain
+        - price
+      properties:
+        order_hash:
+          type: string
+          description: The hash of the order
+        chain:
+          type: string
+          description: The blockchain on which the offer exists
+        price:
+          $ref: '#/components/schemas/Price'
+        criteria:
+          type: object
+          required:
+            - collection
+            - contract
+          properties:
+            collection:
+              $ref: '#/components/schemas/CollectionCriteria'
+            contract:
+              $ref: '#/components/schemas/ContractCriteria'
+            trait:
+              $ref: '#/components/schemas/TraitCriteria'
+            encoded_token_ids:
+              type: string
+              description: Encoded token IDs. Use "*" for all tokens
+        protocol_data:
+          $ref: '#/components/schemas/ProtocolData'
+        protocol_address:
+          type: string
+          description: The protocol address
+
+    OffersResponse:
+      type: object
+      required:
+        - offers
+      properties:
+        offers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Offer'
+
     CriteriaOffer:
       type: object
       required:
@@ -660,56 +673,18 @@ components:
             - contract
           properties:
             collection:
-              type: object
-              required:
-                - slug
-              properties:
-                slug:
-                  type: string
+              $ref: '#/components/schemas/CollectionCriteria'
             contract:
-              type: object
-              required:
-                - address
-              properties:
-                address:
-                  type: string
+              $ref: '#/components/schemas/ContractCriteria'
             encoded_token_ids:
               type: string
-              description: Represents a list of token IDs matching the criteria.
+              description: List of token IDs matching criteria
         protocol_address:
           type: string
-          description: The exchange contract address.
+          description: The exchange contract address
         protocol_data:
-          type: object
-          required:
-            - signature
-            - parameters
-          properties:
-            signature:
-              type: string
-            parameters:
-              type: object
-              required:
-                - offerer
-                - offer
-              properties:
-                offerer:
-                  type: string
-                offer:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                      - itemType
-                      - token
-                      - identifierOrCriteria
-                    properties:
-                      itemType:
-                        type: integer
-                      token:
-                        type: string
-                      identifierOrCriteria:
-                        type: string
+          $ref: '#/components/schemas/ProtocolData'
+
     CriteriaOfferResponse:
       type: object
       required:
@@ -721,11 +696,4 @@ components:
         chain:
           type: string
         price:
-          type: object
-          properties:
-            currency:
-              type: string
-            decimals:
-              type: integer
-            value:
-              type: string
+          $ref: '#/components/schemas/Price'

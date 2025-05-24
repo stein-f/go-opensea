@@ -20,11 +20,11 @@ const (
 	ApiKeyAuthScopes = "apiKeyAuth.Scopes"
 )
 
-// Defines values for CollectionStatsResponseIntervalsInterval.
+// Defines values for StatsIntervalInterval.
 const (
-	OneDay    CollectionStatsResponseIntervalsInterval = "one_day"
-	SevenDay  CollectionStatsResponseIntervalsInterval = "seven_day"
-	ThirtyDay CollectionStatsResponseIntervalsInterval = "thirty_day"
+	OneDay    StatsIntervalInterval = "one_day"
+	SevenDay  StatsIntervalInterval = "seven_day"
+	ThirtyDay StatsIntervalInterval = "thirty_day"
 )
 
 // Account defines model for Account.
@@ -45,13 +45,7 @@ type Account struct {
 	ProfileImageUrl string `json:"profile_image_url"`
 
 	// SocialMediaAccounts List of associated social media accounts
-	SocialMediaAccounts *[]struct {
-		// Platform Social media platform name
-		Platform *string `json:"platform,omitempty"`
-
-		// Username Social media username
-		Username *string `json:"username,omitempty"`
-	} `json:"social_media_accounts,omitempty"`
+	SocialMediaAccounts *[]SocialMediaAccount `json:"social_media_accounts,omitempty"`
 
 	// Username The username associated with the account
 	Username string `json:"username"`
@@ -72,16 +66,8 @@ type Collection struct {
 	Collection string `json:"collection"`
 
 	// CollectionOffersEnabled Flags if collection offers are enabled
-	CollectionOffersEnabled *bool `json:"collection_offers_enabled,omitempty"`
-
-	// Contracts List of contract details for the collection
-	Contracts *[]struct {
-		// Address Contract address
-		Address *string `json:"address,omitempty"`
-
-		// Chain Blockchain of the contract
-		Chain *string `json:"chain,omitempty"`
-	} `json:"contracts,omitempty"`
+	CollectionOffersEnabled *bool           `json:"collection_offers_enabled,omitempty"`
+	Contracts               *[]ContractInfo `json:"contracts,omitempty"`
 
 	// CreatedDate Creation date of the collection
 	CreatedDate string `json:"created_date"`
@@ -93,19 +79,8 @@ type Collection struct {
 	DiscordUrl *string `json:"discord_url,omitempty"`
 
 	// Editors List of editor addresses
-	Editors *[]string `json:"editors,omitempty"`
-
-	// Fees List of fees associated with the collection
-	Fees *[]struct {
-		// Fee Fee percentage
-		Fee *float64 `json:"fee,omitempty"`
-
-		// Recipient Address of the fee recipient
-		Recipient *string `json:"recipient,omitempty"`
-
-		// Required Whether the fee is required
-		Required *bool `json:"required,omitempty"`
-	} `json:"fees,omitempty"`
+	Editors *[]string        `json:"editors,omitempty"`
+	Fees    *[]CollectionFee `json:"fees,omitempty"`
 
 	// ImageUrl URL of the collection's image
 	ImageUrl string `json:"image_url"`
@@ -126,55 +101,12 @@ type Collection struct {
 	OpenseaUrl *string `json:"opensea_url,omitempty"`
 
 	// Owner The Ethereum address of the collection owner
-	Owner string `json:"owner"`
-
-	// PaymentTokens List of payment tokens supported by the collection
-	PaymentTokens *[]struct {
-		// Address Address of the payment token
-		Address *string `json:"address,omitempty"`
-
-		// Chain Blockchain of the payment token
-		Chain *string `json:"chain,omitempty"`
-
-		// Decimals Number of decimals of the token
-		Decimals *int `json:"decimals,omitempty"`
-
-		// EthPrice Price of the token in ETH
-		EthPrice *string `json:"eth_price,omitempty"`
-
-		// Image URL of the payment token's image
-		Image *string `json:"image,omitempty"`
-
-		// Name Name of the token
-		Name *string `json:"name,omitempty"`
-
-		// Symbol Payment token symbol
-		Symbol *string `json:"symbol,omitempty"`
-
-		// UsdPrice Price of the token in USD
-		UsdPrice *string `json:"usd_price,omitempty"`
-	} `json:"payment_tokens,omitempty"`
+	Owner         string          `json:"owner"`
+	PaymentTokens *[]PaymentToken `json:"payment_tokens,omitempty"`
 
 	// ProjectUrl Official project URL
-	ProjectUrl *string `json:"project_url,omitempty"`
-
-	// Rarity Rarity-related metadata
-	Rarity *struct {
-		// CalculatedAt Timestamp when the rarity was calculated
-		CalculatedAt *string `json:"calculated_at,omitempty"`
-
-		// MaxRank Maximum rank of tokens
-		MaxRank *int `json:"max_rank,omitempty"`
-
-		// StrategyId Rarity calculation strategy identifier
-		StrategyId *string `json:"strategy_id,omitempty"`
-
-		// StrategyVersion Version of the rarity calculation strategy
-		StrategyVersion *string `json:"strategy_version,omitempty"`
-
-		// TokensScored Number of tokens scored
-		TokensScored *int `json:"tokens_scored,omitempty"`
-	} `json:"rarity,omitempty"`
+	ProjectUrl *string     `json:"project_url,omitempty"`
+	Rarity     *RarityInfo `json:"rarity,omitempty"`
 
 	// SafelistStatus The safelist status of the collection
 	SafelistStatus *string `json:"safelist_status,omitempty"`
@@ -195,230 +127,279 @@ type Collection struct {
 	WikiUrl *string `json:"wiki_url,omitempty"`
 }
 
-// CollectionStatsResponse A response containing statistics for a specific collection.
-type CollectionStatsResponse struct {
-	// Intervals Time interval statistics for the collection.
-	Intervals []struct {
-		// AveragePrice The average price during the interval.
-		AveragePrice float64 `json:"average_price"`
-
-		// Interval The interval data is associated with (e.g., "one_day").
-		Interval CollectionStatsResponseIntervalsInterval `json:"interval"`
-
-		// Sales Number of sales during the interval.
-		Sales float64 `json:"sales"`
-
-		// SalesDiff Difference in sales compared to the previous interval.
-		SalesDiff float64 `json:"sales_diff"`
-
-		// Volume Trading volume during the interval.
-		Volume float64 `json:"volume"`
-
-		// VolumeChange Percentage change in volume compared to the previous interval.
-		VolumeChange float64 `json:"volume_change"`
-
-		// VolumeDiff Difference in trading volume compared to the previous interval.
-		VolumeDiff float64 `json:"volume_diff"`
-	} `json:"intervals"`
-
-	// Total Aggregated statistics for the collection.
-	Total struct {
-		// AveragePrice Average price of items in the collection.
-		AveragePrice float64 `json:"average_price"`
-
-		// FloorPrice The lowest price of items in the collection.
-		FloorPrice float64 `json:"floor_price"`
-
-		// FloorPriceSymbol The currency or token symbol for the floor price.
-		FloorPriceSymbol string `json:"floor_price_symbol"`
-
-		// MarketCap The market cap of the collection.
-		MarketCap float64 `json:"market_cap"`
-
-		// NumOwners Number of unique owners of the collection.
-		NumOwners int `json:"num_owners"`
-
-		// Sales Total sales transactions for the collection.
-		Sales float64 `json:"sales"`
-
-		// Volume Total trading volume of the collection.
-		Volume float64 `json:"volume"`
-	} `json:"total"`
+// CollectionCriteria defines model for CollectionCriteria.
+type CollectionCriteria struct {
+	// Slug The slug identifier of the collection
+	Slug *string `json:"slug,omitempty"`
 }
 
-// CollectionStatsResponseIntervalsInterval The interval data is associated with (e.g., "one_day").
-type CollectionStatsResponseIntervalsInterval string
+// CollectionFee defines model for CollectionFee.
+type CollectionFee struct {
+	// Fee Fee percentage
+	Fee *float64 `json:"fee,omitempty"`
+
+	// Recipient Address of the fee recipient
+	Recipient *string `json:"recipient,omitempty"`
+
+	// Required Whether the fee is required
+	Required *bool `json:"required,omitempty"`
+}
+
+// CollectionStats defines model for CollectionStats.
+type CollectionStats struct {
+	// AveragePrice Average price of items
+	AveragePrice float64 `json:"average_price"`
+
+	// FloorPrice The lowest price of items
+	FloorPrice float64 `json:"floor_price"`
+
+	// FloorPriceSymbol The currency symbol for floor price
+	FloorPriceSymbol string `json:"floor_price_symbol"`
+
+	// MarketCap The market cap
+	MarketCap float64 `json:"market_cap"`
+
+	// NumOwners Number of unique owners
+	NumOwners int `json:"num_owners"`
+
+	// Sales Total sales transactions
+	Sales float64 `json:"sales"`
+
+	// Volume Total trading volume
+	Volume float64 `json:"volume"`
+}
+
+// CollectionStatsResponse defines model for CollectionStatsResponse.
+type CollectionStatsResponse struct {
+	Intervals []StatsInterval `json:"intervals"`
+	Total     CollectionStats `json:"total"`
+}
+
+// ContractCriteria defines model for ContractCriteria.
+type ContractCriteria struct {
+	// Address The contract address
+	Address string `json:"address"`
+}
+
+// ContractInfo defines model for ContractInfo.
+type ContractInfo struct {
+	// Address Contract address
+	Address *string `json:"address,omitempty"`
+
+	// Chain Blockchain of the contract
+	Chain *string `json:"chain,omitempty"`
+}
 
 // CriteriaOffer defines model for CriteriaOffer.
 type CriteriaOffer struct {
 	Criteria struct {
-		Collection struct {
-			Slug string `json:"slug"`
-		} `json:"collection"`
-		Contract struct {
-			Address string `json:"address"`
-		} `json:"contract"`
+		Collection CollectionCriteria `json:"collection"`
+		Contract   ContractCriteria   `json:"contract"`
 
-		// EncodedTokenIds Represents a list of token IDs matching the criteria.
+		// EncodedTokenIds List of token IDs matching criteria
 		EncodedTokenIds *string `json:"encoded_token_ids,omitempty"`
 	} `json:"criteria"`
 
-	// ProtocolAddress The exchange contract address.
-	ProtocolAddress string `json:"protocol_address"`
-	ProtocolData    struct {
-		Parameters struct {
-			Offer []struct {
-				IdentifierOrCriteria string `json:"identifierOrCriteria"`
-				ItemType             int    `json:"itemType"`
-				Token                string `json:"token"`
-			} `json:"offer"`
-			Offerer string `json:"offerer"`
-		} `json:"parameters"`
-		Signature string `json:"signature"`
-	} `json:"protocol_data"`
+	// ProtocolAddress The exchange contract address
+	ProtocolAddress string       `json:"protocol_address"`
+	ProtocolData    ProtocolData `json:"protocol_data"`
 }
 
 // CriteriaOfferResponse defines model for CriteriaOfferResponse.
 type CriteriaOfferResponse struct {
 	Chain     string `json:"chain"`
 	OrderHash string `json:"order_hash"`
-	Price     *struct {
-		Currency *string `json:"currency,omitempty"`
-		Decimals *int    `json:"decimals,omitempty"`
-		Value    *string `json:"value,omitempty"`
-	} `json:"price,omitempty"`
+	Price     *Price `json:"price,omitempty"`
 }
 
 // Offer defines model for Offer.
 type Offer struct {
-	// Chain The blockchain on which the offer exists (e.g., "ethereum").
-	Chain string `json:"chain"`
-
-	// Criteria The offer criteria.
+	// Chain The blockchain on which the offer exists
+	Chain    string `json:"chain"`
 	Criteria *struct {
-		// Collection The collection criteria.
-		Collection struct {
-			// Slug The slug identifier of the collection.
-			Slug *string `json:"slug,omitempty"`
-		} `json:"collection"`
+		Collection CollectionCriteria `json:"collection"`
+		Contract   ContractCriteria   `json:"contract"`
 
-		// Contract The contract criteria.
-		Contract struct {
-			// Address The contract address.
-			Address string `json:"address"`
-		} `json:"contract"`
-
-		// EncodedTokenIds Encoded token IDs. Use "*" for all tokens.
-		EncodedTokenIds *string `json:"encoded_token_ids,omitempty"`
-
-		// Trait The trait criteria.
-		Trait *struct {
-			// Type The type of the trait (e.g., "Background").
-			Type string `json:"type"`
-
-			// Value The value of the trait (e.g., "Yellow").
-			Value string `json:"value"`
-		} `json:"trait,omitempty"`
+		// EncodedTokenIds Encoded token IDs. Use "*" for all tokens
+		EncodedTokenIds *string        `json:"encoded_token_ids,omitempty"`
+		Trait           *TraitCriteria `json:"trait,omitempty"`
 	} `json:"criteria,omitempty"`
 
-	// OrderHash The hash of the order.
+	// OrderHash The hash of the order
 	OrderHash string `json:"order_hash"`
+	Price     Price  `json:"price"`
 
-	// Price The price details of the offer.
-	Price struct {
-		// Currency The currency used for the offer (e.g., "WETH").
-		Currency string `json:"currency"`
-
-		// Decimals Number of decimals for the currency.
-		Decimals int `json:"decimals"`
-
-		// Value The value of the offer in currency units.
-		Value string `json:"value"`
-	} `json:"price"`
-
-	// ProtocolAddress The protocol address.
-	ProtocolAddress *string `json:"protocol_address,omitempty"`
-
-	// ProtocolData Data related to the protocol of the offer.
-	ProtocolData *struct {
-		// Parameters The offer parameters.
-		Parameters struct {
-			// ConduitKey The conduit key for the order.
-			ConduitKey *string `json:"conduitKey,omitempty"`
-
-			// Consideration The list of considerations for the offer.
-			Consideration *[]struct {
-				// EndAmount The ending amount for the consideration.
-				EndAmount *string `json:"endAmount,omitempty"`
-
-				// IdentifierOrCriteria Identifier or criteria for the token.
-				IdentifierOrCriteria *string `json:"identifierOrCriteria,omitempty"`
-
-				// ItemType The type of item (e.g., 1 for ERC721).
-				ItemType *int `json:"itemType,omitempty"`
-
-				// Recipient Address of the recipient.
-				Recipient *string `json:"recipient,omitempty"`
-
-				// StartAmount The starting amount for the consideration.
-				StartAmount *string `json:"startAmount,omitempty"`
-
-				// Token Token address.
-				Token *string `json:"token,omitempty"`
-			} `json:"consideration,omitempty"`
-
-			// EndTime The end time of the offer (as a string timestamp).
-			EndTime *string `json:"endTime,omitempty"`
-
-			// Offer The list of items included in the offer.
-			Offer []struct {
-				// EndAmount The ending amount for the offer.
-				EndAmount string `json:"endAmount"`
-
-				// IdentifierOrCriteria Identifier or criteria for the token.
-				IdentifierOrCriteria string `json:"identifierOrCriteria"`
-
-				// ItemType The type of item (e.g., 1 for ERC20).
-				ItemType int `json:"itemType"`
-
-				// StartAmount The starting amount for the offer.
-				StartAmount string `json:"startAmount"`
-
-				// Token Token address.
-				Token string `json:"token"`
-			} `json:"offer"`
-
-			// Offerer Address of the offerer.
-			Offerer string `json:"offerer"`
-
-			// OrderType The type of order.
-			OrderType *int `json:"orderType,omitempty"`
-
-			// Salt A unique value to prevent duplicate orders.
-			Salt *string `json:"salt,omitempty"`
-
-			// StartTime The start time of the offer (as a string timestamp).
-			StartTime *string `json:"startTime,omitempty"`
-
-			// TotalOriginalConsiderationItems Total number of original consideration items.
-			TotalOriginalConsiderationItems *int `json:"totalOriginalConsiderationItems,omitempty"`
-
-			// Zone Address of the zone.
-			Zone *string `json:"zone,omitempty"`
-
-			// ZoneHash The hash of the zone.
-			ZoneHash *string `json:"zoneHash,omitempty"`
-		} `json:"parameters"`
-
-		// Signature The signature of the protocol data. May be null.
-		Signature *string `json:"signature,omitempty"`
-	} `json:"protocol_data,omitempty"`
+	// ProtocolAddress The protocol address
+	ProtocolAddress *string       `json:"protocol_address,omitempty"`
+	ProtocolData    *ProtocolData `json:"protocol_data,omitempty"`
 }
 
-// OffersResponse Response object wrapping the offers array.
+// OfferItem defines model for OfferItem.
+type OfferItem struct {
+	// EndAmount The ending amount
+	EndAmount string `json:"endAmount"`
+
+	// IdentifierOrCriteria Identifier or criteria for the token
+	IdentifierOrCriteria string `json:"identifierOrCriteria"`
+
+	// ItemType The type of item (e.g., 1 for ERC20)
+	ItemType int `json:"itemType"`
+
+	// Recipient Address of the recipient
+	Recipient string `json:"recipient"`
+
+	// StartAmount The starting amount
+	StartAmount string `json:"startAmount"`
+
+	// Token Token address
+	Token string `json:"token"`
+}
+
+// OffersResponse defines model for OffersResponse.
 type OffersResponse struct {
-	// Offers A list of offers in the response.
 	Offers []Offer `json:"offers"`
+}
+
+// PaymentToken defines model for PaymentToken.
+type PaymentToken struct {
+	// Address Address of the payment token
+	Address *string `json:"address,omitempty"`
+
+	// Chain Blockchain of the payment token
+	Chain *string `json:"chain,omitempty"`
+
+	// Decimals Number of decimals of the token
+	Decimals *int `json:"decimals,omitempty"`
+
+	// EthPrice Price of the token in ETH
+	EthPrice *string `json:"eth_price,omitempty"`
+
+	// Image URL of the payment token's image
+	Image *string `json:"image,omitempty"`
+
+	// Name Name of the token
+	Name *string `json:"name,omitempty"`
+
+	// Symbol Payment token symbol
+	Symbol *string `json:"symbol,omitempty"`
+
+	// UsdPrice Price of the token in USD
+	UsdPrice *string `json:"usd_price,omitempty"`
+}
+
+// Price defines model for Price.
+type Price struct {
+	// Currency The currency used (e.g., "WETH")
+	Currency string `json:"currency"`
+
+	// Decimals Number of decimals for the currency
+	Decimals int `json:"decimals"`
+
+	// Value The value in currency units
+	Value string `json:"value"`
+}
+
+// ProtocolData defines model for ProtocolData.
+type ProtocolData struct {
+	Parameters ProtocolParameters `json:"parameters"`
+
+	// Signature The signature of the protocol data
+	Signature *string `json:"signature,omitempty"`
+}
+
+// ProtocolParameters defines model for ProtocolParameters.
+type ProtocolParameters struct {
+	// ConduitKey The conduit key for the order
+	ConduitKey    *string      `json:"conduitKey,omitempty"`
+	Consideration *[]OfferItem `json:"consideration,omitempty"`
+
+	// EndTime The end time (as string timestamp)
+	EndTime *string     `json:"endTime,omitempty"`
+	Offer   []OfferItem `json:"offer"`
+
+	// Offerer Address of the offerer
+	Offerer string `json:"offerer"`
+
+	// OrderType The type of order
+	OrderType *int `json:"orderType,omitempty"`
+
+	// Salt A unique value to prevent duplicate orders
+	Salt *string `json:"salt,omitempty"`
+
+	// StartTime The start time (as string timestamp)
+	StartTime *string `json:"startTime,omitempty"`
+
+	// TotalOriginalConsiderationItems Total number of original consideration items
+	TotalOriginalConsiderationItems *int `json:"totalOriginalConsiderationItems,omitempty"`
+
+	// Zone Address of the zone
+	Zone *string `json:"zone,omitempty"`
+
+	// ZoneHash The hash of the zone
+	ZoneHash *string `json:"zoneHash,omitempty"`
+}
+
+// RarityInfo defines model for RarityInfo.
+type RarityInfo struct {
+	// CalculatedAt Timestamp when the rarity was calculated
+	CalculatedAt *string `json:"calculated_at,omitempty"`
+
+	// MaxRank Maximum rank of tokens
+	MaxRank *int `json:"max_rank,omitempty"`
+
+	// StrategyId Rarity calculation strategy identifier
+	StrategyId *string `json:"strategy_id,omitempty"`
+
+	// StrategyVersion Version of the rarity calculation strategy
+	StrategyVersion *string `json:"strategy_version,omitempty"`
+
+	// TokensScored Number of tokens scored
+	TokensScored *int `json:"tokens_scored,omitempty"`
+}
+
+// SocialMediaAccount defines model for SocialMediaAccount.
+type SocialMediaAccount struct {
+	// Platform Social media platform name
+	Platform *string `json:"platform,omitempty"`
+
+	// Username Social media username
+	Username *string `json:"username,omitempty"`
+}
+
+// StatsInterval defines model for StatsInterval.
+type StatsInterval struct {
+	// AveragePrice Average price during interval
+	AveragePrice float64 `json:"average_price"`
+
+	// Interval The interval period
+	Interval StatsIntervalInterval `json:"interval"`
+
+	// Sales Number of sales
+	Sales float64 `json:"sales"`
+
+	// SalesDiff Sales difference vs previous interval
+	SalesDiff float64 `json:"sales_diff"`
+
+	// Volume Trading volume during interval
+	Volume float64 `json:"volume"`
+
+	// VolumeChange Percentage volume change
+	VolumeChange float64 `json:"volume_change"`
+
+	// VolumeDiff Volume difference vs previous interval
+	VolumeDiff float64 `json:"volume_diff"`
+}
+
+// StatsIntervalInterval The interval period
+type StatsIntervalInterval string
+
+// TraitCriteria defines model for TraitCriteria.
+type TraitCriteria struct {
+	// Type The type of the trait (e.g., "Background")
+	Type string `json:"type"`
+
+	// Value The value of the trait (e.g., "Yellow")
+	Value string `json:"value"`
 }
 
 // CancelOrderJSONBody defines parameters for CancelOrder.
