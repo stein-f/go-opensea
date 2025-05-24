@@ -313,33 +313,36 @@ type ProtocolData struct {
 // ProtocolParameters defines model for ProtocolParameters.
 type ProtocolParameters struct {
 	// ConduitKey The conduit key for the order
-	ConduitKey    *string      `json:"conduitKey,omitempty"`
-	Consideration *[]OfferItem `json:"consideration,omitempty"`
+	ConduitKey    string      `json:"conduitKey"`
+	Consideration []OfferItem `json:"consideration"`
+
+	// Counter Must match the current counter for the given offerer. If you are unsure of the current counter, it can be read from the contract on etherscan.
+	Counter string `json:"counter"`
 
 	// EndTime The end time (as string timestamp)
-	EndTime *string     `json:"endTime,omitempty"`
+	EndTime string      `json:"endTime"`
 	Offer   []OfferItem `json:"offer"`
 
 	// Offerer Address of the offerer
 	Offerer string `json:"offerer"`
 
 	// OrderType The type of order
-	OrderType *int `json:"orderType,omitempty"`
+	OrderType int `json:"orderType"`
 
 	// Salt A unique value to prevent duplicate orders
-	Salt *string `json:"salt,omitempty"`
+	Salt string `json:"salt"`
 
 	// StartTime The start time (as string timestamp)
-	StartTime *string `json:"startTime,omitempty"`
+	StartTime string `json:"startTime"`
 
 	// TotalOriginalConsiderationItems Total number of original consideration items
-	TotalOriginalConsiderationItems *int `json:"totalOriginalConsiderationItems,omitempty"`
+	TotalOriginalConsiderationItems int `json:"totalOriginalConsiderationItems"`
 
 	// Zone Address of the zone
-	Zone *string `json:"zone,omitempty"`
+	Zone string `json:"zone"`
 
 	// ZoneHash The hash of the zone
-	ZoneHash *string `json:"zoneHash,omitempty"`
+	ZoneHash string `json:"zoneHash"`
 }
 
 // RarityInfo defines model for RarityInfo.

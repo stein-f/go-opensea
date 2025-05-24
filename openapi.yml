@@ -311,6 +311,16 @@ components:
       required:
         - offerer
         - offer
+        - conduitKey
+        - totalOriginalConsiderationItems
+        - zone
+        - zoneHash
+        - salt
+        - counter
+        - orderType
+        - startTime
+        - endTime
+        - consideration
       properties:
         offerer:
           type: string
@@ -347,7 +357,9 @@ components:
         totalOriginalConsiderationItems:
           type: integer
           description: Total number of original consideration items
-
+        counter:
+          type: string
+          description: Must match the current counter for the given offerer. If you are unsure of the current counter, it can be read from the contract on etherscan.
     ProtocolData:
       type: object
       required:
