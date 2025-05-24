@@ -249,6 +249,46 @@ type CollectionStatsResponse struct {
 // CollectionStatsResponseIntervalsInterval The interval data is associated with (e.g., "one_day").
 type CollectionStatsResponseIntervalsInterval string
 
+// CriteriaOffer defines model for CriteriaOffer.
+type CriteriaOffer struct {
+	Criteria struct {
+		Collection struct {
+			Slug string `json:"slug"`
+		} `json:"collection"`
+		Contract struct {
+			Address string `json:"address"`
+		} `json:"contract"`
+
+		// EncodedTokenIds Represents a list of token IDs matching the criteria.
+		EncodedTokenIds *string `json:"encoded_token_ids,omitempty"`
+	} `json:"criteria"`
+
+	// ProtocolAddress The exchange contract address.
+	ProtocolAddress string `json:"protocol_address"`
+	ProtocolData    struct {
+		Parameters struct {
+			Offer []struct {
+				IdentifierOrCriteria string `json:"identifierOrCriteria"`
+				ItemType             int    `json:"itemType"`
+				Token                string `json:"token"`
+			} `json:"offer"`
+			Offerer string `json:"offerer"`
+		} `json:"parameters"`
+		Signature string `json:"signature"`
+	} `json:"protocol_data"`
+}
+
+// CriteriaOfferResponse defines model for CriteriaOfferResponse.
+type CriteriaOfferResponse struct {
+	Chain     string `json:"chain"`
+	OrderHash string `json:"order_hash"`
+	Price     *struct {
+		Currency *string `json:"currency,omitempty"`
+		Decimals *int    `json:"decimals,omitempty"`
+		Value    *string `json:"value,omitempty"`
+	} `json:"price,omitempty"`
+}
+
 // Offer defines model for Offer.
 type Offer struct {
 	// Chain The blockchain on which the offer exists (e.g., "ethereum").
@@ -387,6 +427,9 @@ type CancelOrderJSONBody struct {
 	OffererSignature *string `json:"offererSignature,omitempty"`
 }
 
+// CreateCriteriaOfferJSONRequestBody defines body for CreateCriteriaOffer for application/json ContentType.
+type CreateCriteriaOfferJSONRequestBody = CriteriaOffer
+
 // CancelOrderJSONRequestBody defines body for CancelOrder for application/json ContentType.
 type CancelOrderJSONRequestBody CancelOrderJSONBody
 
@@ -472,6 +515,11 @@ type ClientInterface interface {
 	// GetCollectionStats request
 	GetCollectionStats(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateCriteriaOfferWithBody request with any body
+	CreateCriteriaOfferWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateCriteriaOffer(ctx context.Context, body CreateCriteriaOfferJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetCollectionOffers request
 	GetCollectionOffers(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -507,6 +555,30 @@ func (c *Client) GetCollection(ctx context.Context, collectionSlug string, reqEd
 
 func (c *Client) GetCollectionStats(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetCollectionStatsRequest(c.Server, collectionSlug)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateCriteriaOfferWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateCriteriaOfferRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateCriteriaOffer(ctx context.Context, body CreateCriteriaOfferJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateCriteriaOfferRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -651,6 +723,46 @@ func NewGetCollectionStatsRequest(server string, collectionSlug string) (*http.R
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewCreateCriteriaOfferRequest calls the generic CreateCriteriaOffer builder with application/json body
+func NewCreateCriteriaOfferRequest(server string, body CreateCriteriaOfferJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateCriteriaOfferRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateCriteriaOfferRequestWithBody generates requests for CreateCriteriaOffer with any type of body
+func NewCreateCriteriaOfferRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v2/offers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -802,6 +914,11 @@ type ClientWithResponsesInterface interface {
 	// GetCollectionStatsWithResponse request
 	GetCollectionStatsWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionStatsResponse, error)
 
+	// CreateCriteriaOfferWithBodyWithResponse request with any body
+	CreateCriteriaOfferWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCriteriaOfferResponse, error)
+
+	CreateCriteriaOfferWithResponse(ctx context.Context, body CreateCriteriaOfferJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCriteriaOfferResponse, error)
+
 	// GetCollectionOffersWithResponse request
 	GetCollectionOffersWithResponse(ctx context.Context, collectionSlug string, reqEditors ...RequestEditorFn) (*GetCollectionOffersResponse, error)
 
@@ -871,6 +988,28 @@ func (r GetCollectionStatsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetCollectionStatsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateCriteriaOfferResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CriteriaOfferResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateCriteriaOfferResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateCriteriaOfferResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -948,6 +1087,23 @@ func (c *ClientWithResponses) GetCollectionStatsWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetCollectionStatsResponse(rsp)
+}
+
+// CreateCriteriaOfferWithBodyWithResponse request with arbitrary body returning *CreateCriteriaOfferResponse
+func (c *ClientWithResponses) CreateCriteriaOfferWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCriteriaOfferResponse, error) {
+	rsp, err := c.CreateCriteriaOfferWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateCriteriaOfferResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateCriteriaOfferWithResponse(ctx context.Context, body CreateCriteriaOfferJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCriteriaOfferResponse, error) {
+	rsp, err := c.CreateCriteriaOffer(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateCriteriaOfferResponse(rsp)
 }
 
 // GetCollectionOffersWithResponse request returning *GetCollectionOffersResponse
@@ -1044,6 +1200,32 @@ func ParseGetCollectionStatsResponse(rsp *http.Response) (*GetCollectionStatsRes
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest CollectionStatsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateCriteriaOfferResponse parses an HTTP response from a CreateCriteriaOfferWithResponse call
+func ParseCreateCriteriaOfferResponse(rsp *http.Response) (*CreateCriteriaOfferResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateCriteriaOfferResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CriteriaOfferResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

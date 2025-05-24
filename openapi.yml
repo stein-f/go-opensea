@@ -12,6 +12,28 @@ security:
   - apiKeyAuth: []
 
 paths:
+  /api/v2/offers:
+    post:
+      summary: Create Criteria Offer
+      description: Create a criteria offer to purchase any NFT in a collection or which matches the specified trait.
+      operationId: createCriteriaOffer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CriteriaOffer'
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CriteriaOfferResponse'
+        '400':
+          description: Account not found
+        '500':
+          description: Server error
   /api/v2/accounts/{username}:
     get:
       summary: Get account
@@ -624,3 +646,86 @@ components:
                 type: number
                 format: double
                 description: The average price during the interval.
+    CriteriaOffer:
+      type: object
+      required:
+        - criteria
+        - protocol_address
+        - protocol_data
+      properties:
+        criteria:
+          type: object
+          required:
+            - collection
+            - contract
+          properties:
+            collection:
+              type: object
+              required:
+                - slug
+              properties:
+                slug:
+                  type: string
+            contract:
+              type: object
+              required:
+                - address
+              properties:
+                address:
+                  type: string
+            encoded_token_ids:
+              type: string
+              description: Represents a list of token IDs matching the criteria.
+        protocol_address:
+          type: string
+          description: The exchange contract address.
+        protocol_data:
+          type: object
+          required:
+            - signature
+            - parameters
+          properties:
+            signature:
+              type: string
+            parameters:
+              type: object
+              required:
+                - offerer
+                - offer
+              properties:
+                offerer:
+                  type: string
+                offer:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - itemType
+                      - token
+                      - identifierOrCriteria
+                    properties:
+                      itemType:
+                        type: integer
+                      token:
+                        type: string
+                      identifierOrCriteria:
+                        type: string
+    CriteriaOfferResponse:
+      type: object
+      required:
+        - order_hash
+        - chain
+      properties:
+        order_hash:
+          type: string
+        chain:
+          type: string
+        price:
+          type: object
+          properties:
+            currency:
+              type: string
+            decimals:
+              type: integer
+            value:
+              type: string

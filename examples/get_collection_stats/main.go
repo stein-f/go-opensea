@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	baseURL = "https://api.opensea.io"
-	address = "proof-moonbirds"
+	baseURL        = "https://api.opensea.io"
+	collectionSlug = "proof-moonbirds"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	response, err := openseaClient.GetCollectionStatsWithResponse(ctx, address)
+	response, err := openseaClient.GetCollectionStatsWithResponse(ctx, collectionSlug)
 	if err != nil {
 		panic(err)
 	}
@@ -30,5 +30,5 @@ func main() {
 		panic(fmt.Sprintf("unexpected status code: %d", response.StatusCode()))
 	}
 
-	fmt.Println(response.JSON200)
+	fmt.Println(response.JSON200.Total.FloorPrice)
 }
