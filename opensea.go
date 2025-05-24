@@ -192,13 +192,7 @@ type ContractInfo struct {
 
 // CriteriaOffer defines model for CriteriaOffer.
 type CriteriaOffer struct {
-	Criteria struct {
-		Collection CollectionCriteria `json:"collection"`
-		Contract   ContractCriteria   `json:"contract"`
-
-		// EncodedTokenIds List of token IDs matching criteria
-		EncodedTokenIds *string `json:"encoded_token_ids,omitempty"`
-	} `json:"criteria"`
+	Criteria OfferCriteria `json:"criteria"`
 
 	// ProtocolAddress The exchange contract address
 	ProtocolAddress string       `json:"protocol_address"`
@@ -232,6 +226,15 @@ type Offer struct {
 	// ProtocolAddress The protocol address
 	ProtocolAddress *string       `json:"protocol_address,omitempty"`
 	ProtocolData    *ProtocolData `json:"protocol_data,omitempty"`
+}
+
+// OfferCriteria defines model for OfferCriteria.
+type OfferCriteria struct {
+	Collection CollectionCriteria `json:"collection"`
+	Contract   ContractCriteria   `json:"contract"`
+
+	// EncodedTokenIds List of token IDs matching criteria
+	EncodedTokenIds *string `json:"encoded_token_ids,omitempty"`
 }
 
 // OfferItem defines model for OfferItem.

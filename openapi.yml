@@ -659,6 +659,20 @@ components:
           items:
             $ref: '#/components/schemas/Offer'
 
+    OfferCriteria:
+      type: object
+      required:
+        - collection
+        - contract
+      properties:
+        collection:
+          $ref: '#/components/schemas/CollectionCriteria'
+        contract:
+          $ref: '#/components/schemas/ContractCriteria'
+        encoded_token_ids:
+          type: string
+          description: List of token IDs matching criteria
+
     CriteriaOffer:
       type: object
       required:
@@ -667,23 +681,13 @@ components:
         - protocol_data
       properties:
         criteria:
-          type: object
-          required:
-            - collection
-            - contract
-          properties:
-            collection:
-              $ref: '#/components/schemas/CollectionCriteria'
-            contract:
-              $ref: '#/components/schemas/ContractCriteria'
-            encoded_token_ids:
-              type: string
-              description: List of token IDs matching criteria
+          $ref: '#/components/schemas/OfferCriteria'
         protocol_address:
           type: string
           description: The exchange contract address
         protocol_data:
           $ref: '#/components/schemas/ProtocolData'
+
 
     CriteriaOfferResponse:
       type: object
