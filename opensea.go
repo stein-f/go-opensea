@@ -130,7 +130,7 @@ type Collection struct {
 // CollectionCriteria defines model for CollectionCriteria.
 type CollectionCriteria struct {
 	// Slug The slug identifier of the collection
-	Slug *string `json:"slug,omitempty"`
+	Slug string `json:"slug"`
 }
 
 // CollectionFee defines model for CollectionFee.
