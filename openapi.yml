@@ -334,10 +334,10 @@ components:
           items:
             $ref: '#/components/schemas/OfferItem'
         startTime:
-          type: string
+          type: integer
           description: The start time (as string timestamp)
         endTime:
-          type: string
+          type: integer
           description: The end time (as string timestamp)
         orderType:
           type: integer

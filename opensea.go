@@ -320,7 +320,7 @@ type ProtocolParameters struct {
 	Counter string `json:"counter"`
 
 	// EndTime The end time (as string timestamp)
-	EndTime string      `json:"endTime"`
+	EndTime int         `json:"endTime"`
 	Offer   []OfferItem `json:"offer"`
 
 	// Offerer Address of the offerer
@@ -333,7 +333,7 @@ type ProtocolParameters struct {
 	Salt string `json:"salt"`
 
 	// StartTime The start time (as string timestamp)
-	StartTime string `json:"startTime"`
+	StartTime int `json:"startTime"`
 
 	// TotalOriginalConsiderationItems Total number of original consideration items
 	TotalOriginalConsiderationItems int `json:"totalOriginalConsiderationItems"`
