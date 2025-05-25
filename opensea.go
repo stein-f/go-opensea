@@ -177,8 +177,8 @@ type CollectionStatsResponse struct {
 
 // ConsiderationItem defines model for ConsiderationItem.
 type ConsiderationItem struct {
-	// EndAmount The ending amount
-	EndAmount int64 `json:"endAmount"`
+	// EndAmount The ending amount in wei as a string
+	EndAmount string `json:"endAmount"`
 
 	// IdentifierOrCriteria Identifier or criteria for the token
 	IdentifierOrCriteria int64 `json:"identifierOrCriteria"`
@@ -189,8 +189,8 @@ type ConsiderationItem struct {
 	// Recipient Address of the recipient
 	Recipient string `json:"recipient"`
 
-	// StartAmount The starting amount
-	StartAmount int64 `json:"startAmount"`
+	// StartAmount The starting amount in wei as a string
+	StartAmount string `json:"startAmount"`
 
 	// Token Token address
 	Token string `json:"token"`
@@ -260,8 +260,8 @@ type OfferCriteria struct {
 
 // OfferItem defines model for OfferItem.
 type OfferItem struct {
-	// EndAmount The ending amount
-	EndAmount int64 `json:"endAmount"`
+	// EndAmount The ending amount in wei as a string
+	EndAmount string `json:"endAmount"`
 
 	// IdentifierOrCriteria Identifier or criteria for the token
 	IdentifierOrCriteria int64 `json:"identifierOrCriteria"`
@@ -269,8 +269,8 @@ type OfferItem struct {
 	// ItemType The type of item (e.g., 1 for ERC20)
 	ItemType int `json:"itemType"`
 
-	// StartAmount The starting amount
-	StartAmount int64 `json:"startAmount"`
+	// StartAmount The starting amount in wei as a string
+	StartAmount string `json:"startAmount"`
 
 	// Token Token address
 	Token string `json:"token"`
@@ -337,8 +337,8 @@ type ProtocolParameters struct {
 	// Counter Must match the current counter for the given offerer. If you are unsure of the current counter, it can be read from the contract on etherscan.
 	Counter string `json:"counter"`
 
-	// EndTime The end time (as string timestamp)
-	EndTime int64       `json:"endTime"`
+	// EndTime The end time as a Unix timestamp in seconds
+	EndTime string      `json:"endTime"`
 	Offer   []OfferItem `json:"offer"`
 
 	// Offerer Address of the offerer
@@ -350,8 +350,8 @@ type ProtocolParameters struct {
 	// Salt A unique value to prevent duplicate orders
 	Salt string `json:"salt"`
 
-	// StartTime The start time (as string timestamp)
-	StartTime int64 `json:"startTime"`
+	// StartTime The start time as a Unix timestamp in seconds
+	StartTime string `json:"startTime"`
 
 	// TotalOriginalConsiderationItems Total number of original consideration items
 	TotalOriginalConsiderationItems int `json:"totalOriginalConsiderationItems"`

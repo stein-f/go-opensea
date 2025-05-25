@@ -297,13 +297,11 @@ components:
           format: int64
           description: Identifier or criteria for the token
         startAmount:
-          type: integer
-          format: int64
-          description: The starting amount
+          type: string
+          description: The starting amount in wei as a string
         endAmount:
-          type: integer
-          format: int64
-          description: The ending amount
+          type: string
+          description: The ending amount in wei as a string
 
     ConsiderationItem:
       type: object
@@ -326,13 +324,11 @@ components:
           format: int64
           description: Identifier or criteria for the token
         startAmount:
-          type: integer
-          format: int64
-          description: The starting amount
+          type: string
+          description: The starting amount in wei as a string
         endAmount:
-          type: integer
-          format: int64
-          description: The ending amount
+          type: string
+          description: The ending amount in wei as a string
         recipient:
           type: string
           description: Address of the recipient
@@ -365,13 +361,11 @@ components:
           items:
             $ref: '#/components/schemas/ConsiderationItem'
         startTime:
-          type: integer
-          format: int64
-          description: The start time (as string timestamp)
+          type: string
+          description: The start time as a Unix timestamp in seconds
         endTime:
-          type: integer
-          format: int64
-          description: The end time (as string timestamp)
+          type: string
+          description: The end time as a Unix timestamp in seconds
         orderType:
           type: integer
           description: The type of order
