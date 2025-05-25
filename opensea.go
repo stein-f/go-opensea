@@ -175,6 +175,27 @@ type CollectionStatsResponse struct {
 	Total     CollectionStats `json:"total"`
 }
 
+// ConsiderationItem defines model for ConsiderationItem.
+type ConsiderationItem struct {
+	// EndAmount The ending amount
+	EndAmount int64 `json:"endAmount"`
+
+	// IdentifierOrCriteria Identifier or criteria for the token
+	IdentifierOrCriteria int64 `json:"identifierOrCriteria"`
+
+	// ItemType The type of item (e.g., 1 for ERC20)
+	ItemType int `json:"itemType"`
+
+	// Recipient Address of the recipient
+	Recipient string `json:"recipient"`
+
+	// StartAmount The starting amount
+	StartAmount int64 `json:"startAmount"`
+
+	// Token Token address
+	Token string `json:"token"`
+}
+
 // ContractCriteria defines model for ContractCriteria.
 type ContractCriteria struct {
 	// Address The contract address
@@ -240,19 +261,16 @@ type OfferCriteria struct {
 // OfferItem defines model for OfferItem.
 type OfferItem struct {
 	// EndAmount The ending amount
-	EndAmount string `json:"endAmount"`
+	EndAmount int64 `json:"endAmount"`
 
 	// IdentifierOrCriteria Identifier or criteria for the token
-	IdentifierOrCriteria string `json:"identifierOrCriteria"`
+	IdentifierOrCriteria int64 `json:"identifierOrCriteria"`
 
 	// ItemType The type of item (e.g., 1 for ERC20)
 	ItemType int `json:"itemType"`
 
-	// Recipient Address of the recipient
-	Recipient string `json:"recipient"`
-
 	// StartAmount The starting amount
-	StartAmount string `json:"startAmount"`
+	StartAmount int64 `json:"startAmount"`
 
 	// Token Token address
 	Token string `json:"token"`
@@ -313,14 +331,14 @@ type ProtocolData struct {
 // ProtocolParameters defines model for ProtocolParameters.
 type ProtocolParameters struct {
 	// ConduitKey The conduit key for the order
-	ConduitKey    string      `json:"conduitKey"`
-	Consideration []OfferItem `json:"consideration"`
+	ConduitKey    string              `json:"conduitKey"`
+	Consideration []ConsiderationItem `json:"consideration"`
 
 	// Counter Must match the current counter for the given offerer. If you are unsure of the current counter, it can be read from the contract on etherscan.
 	Counter string `json:"counter"`
 
 	// EndTime The end time (as string timestamp)
-	EndTime int         `json:"endTime"`
+	EndTime int64       `json:"endTime"`
 	Offer   []OfferItem `json:"offer"`
 
 	// Offerer Address of the offerer
@@ -333,7 +351,7 @@ type ProtocolParameters struct {
 	Salt string `json:"salt"`
 
 	// StartTime The start time (as string timestamp)
-	StartTime int `json:"startTime"`
+	StartTime int64 `json:"startTime"`
 
 	// TotalOriginalConsiderationItems Total number of original consideration items
 	TotalOriginalConsiderationItems int `json:"totalOriginalConsiderationItems"`

@@ -282,10 +282,9 @@ components:
       required:
         - itemType
         - token
+        - identifierOrCriteria
         - startAmount
         - endAmount
-        - recipient
-        - identifierOrCriteria
       properties:
         itemType:
           type: integer
@@ -294,13 +293,45 @@ components:
           type: string
           description: Token address
         identifierOrCriteria:
-          type: string
+          type: integer
+          format: int64
           description: Identifier or criteria for the token
         startAmount:
-          type: string
+          type: integer
+          format: int64
           description: The starting amount
         endAmount:
+          type: integer
+          format: int64
+          description: The ending amount
+
+    ConsiderationItem:
+      type: object
+      required:
+        - itemType
+        - token
+        - identifierOrCriteria
+        - startAmount
+        - endAmount
+        - recipient
+      properties:
+        itemType:
+          type: integer
+          description: The type of item (e.g., 1 for ERC20)
+        token:
           type: string
+          description: Token address
+        identifierOrCriteria:
+          type: integer
+          format: int64
+          description: Identifier or criteria for the token
+        startAmount:
+          type: integer
+          format: int64
+          description: The starting amount
+        endAmount:
+          type: integer
+          format: int64
           description: The ending amount
         recipient:
           type: string
@@ -332,12 +363,14 @@ components:
         consideration:
           type: array
           items:
-            $ref: '#/components/schemas/OfferItem'
+            $ref: '#/components/schemas/ConsiderationItem'
         startTime:
           type: integer
+          format: int64
           description: The start time (as string timestamp)
         endTime:
           type: integer
+          format: int64
           description: The end time (as string timestamp)
         orderType:
           type: integer
