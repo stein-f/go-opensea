@@ -325,7 +325,7 @@ type ProtocolData struct {
 	Parameters ProtocolParameters `json:"parameters"`
 
 	// Signature The signature of the protocol data
-	Signature *string `json:"signature,omitempty"`
+	Signature string `json:"signature"`
 }
 
 // ProtocolParameters defines model for ProtocolParameters.

@@ -391,6 +391,7 @@ components:
       type: object
       required:
         - parameters
+        - signature
       properties:
         parameters:
           $ref: '#/components/schemas/ProtocolParameters'
