@@ -17,3 +17,7 @@ make generate
 ```
 
 See `examples` for usage.
+
+## Docs
+
+https://stein-f.github.io/go-opensea
