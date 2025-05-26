@@ -293,8 +293,7 @@ components:
           type: string
           description: Token address
         identifierOrCriteria:
-          type: integer
-          format: int64
+          type: string
           description: Identifier or criteria for the token
         startAmount:
           type: string
@@ -320,8 +319,7 @@ components:
           type: string
           description: Token address
         identifierOrCriteria:
-          type: integer
-          format: int64
+          type: string
           description: Identifier or criteria for the token
         startAmount:
           type: string

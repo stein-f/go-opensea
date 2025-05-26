@@ -181,7 +181,7 @@ type ConsiderationItem struct {
 	EndAmount string `json:"endAmount"`
 
 	// IdentifierOrCriteria Identifier or criteria for the token
-	IdentifierOrCriteria int64 `json:"identifierOrCriteria"`
+	IdentifierOrCriteria string `json:"identifierOrCriteria"`
 
 	// ItemType The type of item (e.g., 1 for ERC20)
 	ItemType int `json:"itemType"`
@@ -264,7 +264,7 @@ type OfferItem struct {
 	EndAmount string `json:"endAmount"`
 
 	// IdentifierOrCriteria Identifier or criteria for the token
-	IdentifierOrCriteria int64 `json:"identifierOrCriteria"`
+	IdentifierOrCriteria string `json:"identifierOrCriteria"`
 
 	// ItemType The type of item (e.g., 1 for ERC20)
 	ItemType int `json:"itemType"`
