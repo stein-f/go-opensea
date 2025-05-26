@@ -335,7 +335,7 @@ type ProtocolParameters struct {
 	Consideration []ConsiderationItem `json:"consideration"`
 
 	// Counter Must match the current counter for the given offerer. If you are unsure of the current counter, it can be read from the contract on etherscan.
-	Counter string `json:"counter"`
+	Counter ProtocolParameters_Counter `json:"counter"`
 
 	// EndTime The end time as a Unix timestamp in seconds
 	EndTime string      `json:"endTime"`
@@ -361,6 +361,17 @@ type ProtocolParameters struct {
 
 	// ZoneHash The hash of the zone
 	ZoneHash string `json:"zoneHash"`
+}
+
+// ProtocolParametersCounter0 defines model for .
+type ProtocolParametersCounter0 = string
+
+// ProtocolParametersCounter1 defines model for .
+type ProtocolParametersCounter1 = int
+
+// ProtocolParameters_Counter Must match the current counter for the given offerer. If you are unsure of the current counter, it can be read from the contract on etherscan.
+type ProtocolParameters_Counter struct {
+	union json.RawMessage
 }
 
 // RarityInfo defines model for RarityInfo.
@@ -437,6 +448,68 @@ type CreateCriteriaOfferJSONRequestBody = CriteriaOffer
 
 // CancelOrderJSONRequestBody defines body for CancelOrder for application/json ContentType.
 type CancelOrderJSONRequestBody CancelOrderJSONBody
+
+// AsProtocolParametersCounter0 returns the union data inside the ProtocolParameters_Counter as a ProtocolParametersCounter0
+func (t ProtocolParameters_Counter) AsProtocolParametersCounter0() (ProtocolParametersCounter0, error) {
+	var body ProtocolParametersCounter0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProtocolParametersCounter0 overwrites any union data inside the ProtocolParameters_Counter as the provided ProtocolParametersCounter0
+func (t *ProtocolParameters_Counter) FromProtocolParametersCounter0(v ProtocolParametersCounter0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProtocolParametersCounter0 performs a merge with any union data inside the ProtocolParameters_Counter, using the provided ProtocolParametersCounter0
+func (t *ProtocolParameters_Counter) MergeProtocolParametersCounter0(v ProtocolParametersCounter0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProtocolParametersCounter1 returns the union data inside the ProtocolParameters_Counter as a ProtocolParametersCounter1
+func (t ProtocolParameters_Counter) AsProtocolParametersCounter1() (ProtocolParametersCounter1, error) {
+	var body ProtocolParametersCounter1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProtocolParametersCounter1 overwrites any union data inside the ProtocolParameters_Counter as the provided ProtocolParametersCounter1
+func (t *ProtocolParameters_Counter) FromProtocolParametersCounter1(v ProtocolParametersCounter1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProtocolParametersCounter1 performs a merge with any union data inside the ProtocolParameters_Counter, using the provided ProtocolParametersCounter1
+func (t *ProtocolParameters_Counter) MergeProtocolParametersCounter1(v ProtocolParametersCounter1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ProtocolParameters_Counter) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ProtocolParameters_Counter) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
