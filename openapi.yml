@@ -385,7 +385,9 @@ components:
         counter:
           oneOf:
             - type: string
+              description: String representation of the counter value
             - type: integer
+              description: Integer representation of the counter value
           description: Must match the current counter for the given offerer. If you are unsure of the current counter, it can be read from the contract on etherscan.
     ProtocolData:
       type: object
@@ -703,9 +705,6 @@ components:
 
     OfferCriteria:
       type: object
-      required:
-        - collection
-        - contract
       properties:
         collection:
           $ref: '#/components/schemas/CollectionCriteria'

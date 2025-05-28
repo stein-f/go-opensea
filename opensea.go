@@ -251,8 +251,8 @@ type Offer struct {
 
 // OfferCriteria defines model for OfferCriteria.
 type OfferCriteria struct {
-	Collection CollectionCriteria `json:"collection"`
-	Contract   ContractCriteria   `json:"contract"`
+	Collection *CollectionCriteria `json:"collection,omitempty"`
+	Contract   *ContractCriteria   `json:"contract,omitempty"`
 
 	// EncodedTokenIds List of token IDs matching criteria
 	EncodedTokenIds *string `json:"encoded_token_ids,omitempty"`
@@ -363,10 +363,10 @@ type ProtocolParameters struct {
 	ZoneHash string `json:"zoneHash"`
 }
 
-// ProtocolParametersCounter0 defines model for .
+// ProtocolParametersCounter0 String representation of the counter value
 type ProtocolParametersCounter0 = string
 
-// ProtocolParametersCounter1 defines model for .
+// ProtocolParametersCounter1 Integer representation of the counter value
 type ProtocolParametersCounter1 = int
 
 // ProtocolParameters_Counter Must match the current counter for the given offerer. If you are unsure of the current counter, it can be read from the contract on etherscan.
